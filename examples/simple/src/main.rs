@@ -34,6 +34,9 @@ async fn main() {
 
     let signature = quorum_vault_client::api::sign_transaction(&client, "quorum", tx).await.unwrap();
     println!("signature: {:?}", signature);
+
+    let created = quorum_vault_client::api::create_account(&client, "quorum").await.unwrap();
+    println!("created: {:?}", created);
 }
 
 fn init_logger() {

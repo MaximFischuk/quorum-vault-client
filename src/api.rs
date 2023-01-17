@@ -2,9 +2,22 @@ use crate::api::ethereum::responses::{EthereumAccountResponse, EthereumAccountsR
 use crate::error::ClientError;
 use vaultrs::client::Client;
 use web3::types::TransactionRequest;
-use crate::api::ethereum::requests::{ListEthereumAccountsRequest, ReadEthereumAccountRequest, SignEthereumTransactionRequest};
+use crate::api::ethereum::requests::{CreateEthereumAccountRequest, ListEthereumAccountsRequest, ReadEthereumAccountRequest, SignEthereumTransactionRequest};
 
 pub mod ethereum;
+
+pub async fn create_account(
+    client: &impl Client,
+    mount: &str,
+) -> Result<EthereumAccountResponse, ClientError> {
+    let request = CreateEthereumAccountRequest::builder()
+        .mount(mount)
+        .build()
+        .unwrap();
+    vaultrs::api::exec_with_result(client, request)
+        .await
+        .map_err(Into::into)
+}
 
 pub async fn list_accouns(
     client: &impl Client,

@@ -4,6 +4,19 @@ use web3::types::Bytes;
 
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
+path = "{self.mount}/ethereum/accounts",
+method = "POST",
+response = "EthereumAccountResponse",
+builder = "true"
+)]
+#[builder(setter(into))]
+pub struct CreateEthereumAccountRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+}
+
+#[derive(Builder, Debug, Endpoint)]
+#[endpoint(
 path = "{self.mount}/ethereum/accounts/{self.address}",
 method = "GET",
 response = "EthereumAccountResponse",
