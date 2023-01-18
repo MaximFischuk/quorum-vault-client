@@ -2,6 +2,12 @@
 name = "quorum-vault-client"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/MaximFischuk/quorum-vault-client"
+documentation = "https://docs.rs/quorum-vault-client"
+description = "A Rust client for Quorum Vault Plugin"
+authors = ["Maxim Fischuk <maximusfk@gmail.com>"]
+readme = "README.md"
+license = "MIT"
 
 [dependencies]
 vaultrs = "0.6.2"
