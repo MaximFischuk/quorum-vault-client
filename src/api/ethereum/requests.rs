@@ -2,6 +2,12 @@ use crate::api::ethereum::responses::{EthereumAccountResponse, EthereumSignTrans
 use rustify_derive::Endpoint;
 use web3::types::Bytes;
 
+/// ## Create Ethereum Account
+/// This endpoint creates a new Ethereum account.
+///
+/// * Path: {self.mount}/ethereum/accounts
+/// * Method: POST
+/// * Response: [EthereumAccountResponse]
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
 path = "{self.mount}/ethereum/accounts",
@@ -15,6 +21,12 @@ pub struct CreateEthereumAccountRequest {
     pub mount: String,
 }
 
+/// ## Read Ethereum Account
+/// This endpoint an Ethereum account by Address.
+///
+/// * Path: {self.mount}/ethereum/accounts/{self.address}
+/// * Method: GET
+/// * Response: [EthereumAccountResponse]
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
 path = "{self.mount}/ethereum/accounts/{self.address}",
@@ -31,6 +43,12 @@ pub struct ReadEthereumAccountRequest {
     pub address: String,
 }
 
+/// ## List Ethereum Accounts
+/// This endpoint gets all Ethereum accounts.
+///
+/// * Path: {self.mount}/ethereum/accounts
+/// * Method: GET
+/// * Response: [EthereumAccountsResponse]
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
 path = "{self.mount}/ethereum/accounts",
@@ -44,6 +62,12 @@ pub struct ListEthereumAccountsRequest {
     pub mount: String,
 }
 
+/// ## Sign Ethereum Transaction
+/// This endpoint signs an Ethereum transaction.
+///
+/// * Path: {self.mount}/ethereum/sign/{self.address}
+/// * Method: POST
+/// * Response: [EthereumSignTransactionResponse]
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
 path = "{self.mount}/ethereum/accounts/{self.address}/sign-transaction",
