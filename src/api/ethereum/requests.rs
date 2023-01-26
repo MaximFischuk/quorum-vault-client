@@ -1,4 +1,6 @@
-use crate::api::ethereum::responses::{EthereumAccountResponse, EthereumSignTransactionResponse, EthereumAccountsResponse};
+use crate::api::ethereum::responses::{
+    EthereumAccountResponse, EthereumAccountsResponse, EthereumSignTransactionResponse,
+};
 use rustify_derive::Endpoint;
 use web3::types::Bytes;
 
@@ -10,10 +12,10 @@ use web3::types::Bytes;
 /// * Response: [EthereumAccountResponse]
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-path = "{self.mount}/ethereum/accounts",
-method = "POST",
-response = "EthereumAccountResponse",
-builder = "true"
+    path = "{self.mount}/ethereum/accounts",
+    method = "POST",
+    response = "EthereumAccountResponse",
+    builder = "true"
 )]
 #[builder(setter(into))]
 pub struct CreateEthereumAccountRequest {
@@ -29,10 +31,10 @@ pub struct CreateEthereumAccountRequest {
 /// * Response: [EthereumAccountResponse]
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-path = "{self.mount}/ethereum/accounts/{self.address}",
-method = "GET",
-response = "EthereumAccountResponse",
-builder = "true"
+    path = "{self.mount}/ethereum/accounts/{self.address}",
+    method = "GET",
+    response = "EthereumAccountResponse",
+    builder = "true"
 )]
 #[builder(setter(into))]
 pub struct ReadEthereumAccountRequest {
@@ -51,10 +53,10 @@ pub struct ReadEthereumAccountRequest {
 /// * Response: [EthereumAccountsResponse]
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-path = "{self.mount}/ethereum/accounts",
-method = "GET",
-response = "EthereumAccountsResponse",
-builder = "true"
+    path = "{self.mount}/ethereum/accounts",
+    method = "GET",
+    response = "EthereumAccountsResponse",
+    builder = "true"
 )]
 #[builder(setter(into))]
 pub struct ListEthereumAccountsRequest {
@@ -70,10 +72,10 @@ pub struct ListEthereumAccountsRequest {
 /// * Response: [EthereumSignTransactionResponse]
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-path = "{self.mount}/ethereum/accounts/{self.address}/sign-transaction",
-method = "POST",
-response = "EthereumSignTransactionResponse",
-builder = "true"
+    path = "{self.mount}/ethereum/accounts/{self.address}/sign-transaction",
+    method = "POST",
+    response = "EthereumSignTransactionResponse",
+    builder = "true"
 )]
 #[builder(setter(into))]
 pub struct SignEthereumTransactionRequest {

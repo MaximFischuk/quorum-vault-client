@@ -1,8 +1,13 @@
-use crate::api::ethereum::responses::{EthereumAccountResponse, EthereumAccountsResponse, EthereumSignTransactionResponse};
+use crate::api::ethereum::requests::{
+    CreateEthereumAccountRequest, ListEthereumAccountsRequest, ReadEthereumAccountRequest,
+    SignEthereumTransactionRequest,
+};
+use crate::api::ethereum::responses::{
+    EthereumAccountResponse, EthereumAccountsResponse, EthereumSignTransactionResponse,
+};
 use crate::error::ClientError;
 use vaultrs::client::Client;
 use web3::types::{Address, TransactionRequest};
-use crate::api::ethereum::requests::{CreateEthereumAccountRequest, ListEthereumAccountsRequest, ReadEthereumAccountRequest, SignEthereumTransactionRequest};
 
 pub mod ethereum;
 
