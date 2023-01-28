@@ -98,3 +98,24 @@ pub struct SignEthereumTransactionRequest {
     #[endpoint(body)]
     pub to: String,
 }
+
+/// ## Import Private Key
+/// This endpoint imports a private key.
+///
+/// * Path: {self.mount}/ethereum/accounts/import
+/// * Method: POST
+/// * Response: [EthereumAccountResponse]
+#[derive(Builder, Debug, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/ethereum/accounts/import",
+    method = "POST",
+    response = "EthereumAccountResponse",
+    builder = "true"
+)]
+#[builder(setter(into))]
+pub struct ImportPrivateKeyRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(body)]
+    pub private_key: String,
+}

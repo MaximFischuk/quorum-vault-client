@@ -9,7 +9,7 @@ async fn main() {
     let client = VaultClient::new(
         VaultClientSettingsBuilder::default()
             .address("http://127.0.0.1:8200")
-            .token("s.abx7eCduabnQNgMJZs5TECdi")
+            .token("hvs.E4wFaEETAP1TwJjG9S1qNA7J")
             .build()
             .unwrap()
     ).unwrap();
@@ -20,7 +20,7 @@ async fn main() {
     let addresses = quorum_vault_client::api::list_accouns(&client, "quorum").await.unwrap();
     println!("addresses: {:?}", addresses);
 
-    let address = Address::from_str("0x8d3113e29CB92F44F1762E52D2a0276509b36b82").unwrap();
+    let address = addresses.keys.first().copied().unwrap();
 
     let result = quorum_vault_client::api::read_account(&client, "quorum", address).await.unwrap();
     println!("result: {:?}", result);
