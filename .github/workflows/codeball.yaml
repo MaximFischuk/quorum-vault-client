@@ -2,9 +2,6 @@ name: Codeball
 on:
   pull_request:
     branches: [ main ]
-    paths:
-      - '!**'
-      - '/src/**'
   pull_request_review_comment:
     branches: [ main ]
     types: [created, edited]
