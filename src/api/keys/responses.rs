@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Response from executing [CreateKeyRequest][crate::api::keys::requests::CreateKeyRequest]
 #[derive(Deserialize, Debug, Serialize)]

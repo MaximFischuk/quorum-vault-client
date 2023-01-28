@@ -426,5 +426,8 @@ async fn test_import_key() {
     assert_eq!(key.curve, "secp256k1");
     assert_eq!(key.signing_algorithm, "ecdsa");
     assert_eq!(key.version, 1);
-    assert_eq!(key.public_key, "BMDV2nRbw6iFuqs0RRF9cdhgvvHDoxmA4MPN0jomXTGhQIhPlCLMsnWFHaoeYihRUNnQ01CAftQUkAMol8G5SuU=");
+    assert_eq!(
+        key.public_key,
+        "BMDV2nRbw6iFuqs0RRF9cdhgvvHDoxmA4MPN0jomXTGhQIhPlCLMsnWFHaoeYihRUNnQ01CAftQUkAMol8G5SuU="
+    );
 }

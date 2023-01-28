@@ -29,10 +29,9 @@
 //! asynchronous client from [Reqwest](https://docs.rs/reqwest/) for
 //! communicating to Vault.
 //!
-//! ```rust
-//! use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+//! ```no_run
+//!    use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
 //!
-//! fn main() {
 //!     // Create a client
 //!     let client = VaultClient::new(
 //!         VaultClientSettingsBuilder::default()
@@ -41,7 +40,6 @@
 //!             .build()
 //!             .unwrap()
 //!         ).unwrap();
-//! }
 //! ```
 //!
 //! ### Ethereum
@@ -50,7 +48,7 @@
 //!
 //! The following example creates a new Ethereum Wallet in the Vault.
 //!
-//! ```rust
+//! ```no_run
 //! use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
 //!
 //! #[tokio::main]
@@ -80,7 +78,7 @@
 //!
 //! The following example gets list of all Ethereum Wallets in the Vault.
 //!
-//! ```rust
+//! ```no_run
 //! use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
 //!
 //! #[tokio::main]
@@ -110,7 +108,7 @@
 //!
 //! The following example gets the Ethereum Wallet by address.
 //!
-//! ```rust
+//! ```no_run
 //! use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder, Address};
 //! use std::str::FromStr;
 //!
@@ -126,7 +124,7 @@
 //!     ).unwrap();
 //!
 //!     let address = Address::from_str("0x8d3113e29CB92F44F1762E52D2a0276509b36b82").unwrap();
-//!     let read_account = quorum_vault_client::api::read_account(&client, "quorum", account).await.unwrap();
+//!     let read_account = quorum_vault_client::api::read_account(&client, "quorum", address).await.unwrap();
 //!     println!("result: {:?}", read_account);
 //! }
 //!
@@ -142,7 +140,7 @@
 //!
 //! The following example signs the Ethereum Transaction.
 //!
-//! ```rust
+//! ```no_run
 //! use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder, TransactionRequest, Address, U256};
 //! use std::str::FromStr;
 //!
@@ -168,7 +166,7 @@
 //!
 //!     tx.gas_price = Some(U256::from(1));
 //!
-//!     let sign_transaction = quorum_vault_client::api::sign_transaction(&client, "quorum", 1, &tx).await.unwrap();
+//!     let sign_transaction = quorum_vault_client::api::sign_transaction(&client, "quorum", 1, tx).await.unwrap();
 //!     println!("result: {:?}", sign_transaction);
 //! }
 //!

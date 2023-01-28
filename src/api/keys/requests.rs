@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use rustify_derive::Endpoint;
 use crate::api::keys::responses::{KeyResponse, KeysResponse, SignResponse};
+use rustify_derive::Endpoint;
+use std::collections::HashMap;
 
 /// ## Create Key
 /// This endpoint creates a new key with given crypto algorithm and curve.

@@ -1,12 +1,18 @@
-use crate::api::ethereum::requests::{CreateEthereumAccountRequest, ImportPrivateKeyRequest, ListEthereumAccountsRequest, ReadEthereumAccountRequest, SignEthereumTransactionRequest};
+use crate::api::ethereum::requests::{
+    CreateEthereumAccountRequest, ImportPrivateKeyRequest, ListEthereumAccountsRequest,
+    ReadEthereumAccountRequest, SignEthereumTransactionRequest,
+};
 use crate::api::ethereum::responses::{
     EthereumAccountResponse, EthereumAccountsResponse, EthereumSignTransactionResponse,
 };
-use crate::api::keys::requests::{CreateKeyRequest, DestroyKeyRequest, ImportKeyRequest, ListKeysRequest, ReadKeyRequest, SignRequest, UpdateKeyTagsRequest};
+use crate::api::keys::requests::{
+    CreateKeyRequest, DestroyKeyRequest, ImportKeyRequest, ListKeysRequest, ReadKeyRequest,
+    SignRequest, UpdateKeyTagsRequest,
+};
 use crate::api::keys::responses::{KeyResponse, KeysResponse, SignResponse};
 use crate::error::ClientError;
-use std::collections::HashMap;
 use base64::Engine;
+use std::collections::HashMap;
 use vaultrs::client::Client;
 use web3::signing::keccak256;
 use web3::types::{Address, TransactionRequest};
@@ -60,7 +66,7 @@ pub async fn read_account(
     mount: &str,
     address: Address,
 ) -> Result<EthereumAccountResponse, ClientError> {
-    let address = format!("{:?}", address);
+    let address = format!("{address:?}");
     let checksummed = eth_checksum::checksum(&address);
     let request = ReadEthereumAccountRequest::builder()
         .mount(mount)
@@ -250,7 +256,7 @@ pub async fn sign_raw(
     id: &str,
     data: [u8; 32],
 ) -> Result<SignResponse, ClientError> {
-    let encoded = base64::prelude::BASE64_URL_SAFE.encode(&data);
+    let encoded = base64::prelude::BASE64_URL_SAFE.encode(data);
     let request = SignRequest::builder()
         .mount(mount)
         .id(id)
