@@ -1,6 +1,6 @@
 [package]
 name = "quorum-vault-client"
-version = "0.1.0"
+version = "0.2.1"
 edition = "2021"
 repository = "https://github.com/MaximFischuk/quorum-vault-client"
 documentation = "https://docs.rs/quorum-vault-client"
