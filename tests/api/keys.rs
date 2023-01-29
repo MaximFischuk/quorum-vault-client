@@ -1,6 +1,7 @@
 use quorum_vault_client::api;
 use quorum_vault_client::api::KeyCryptoAlgorithm;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
+use web3::signing::keccak256;
 use wiremock::matchers::{body_json, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -234,6 +235,61 @@ async fn test_sign_data() {
         "quorum",
         "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",
         data.as_bytes(),
+    )
+    .await
+    .unwrap();
+
+    assert_eq!(
+        signature.signature,
+        "HgBoSOuweiQUHuXpTjqaSv8yoGUDh37GnMJg9ZyOeTRrjrE9xetYSq-Onjej_kdswHj8FnNRxRhqpYt8jrX71w=="
+    );
+}
+
+#[tokio::test]
+async fn test_sign_hash() {
+    let mock = MockServer::start().await;
+    let vault_client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address(mock.uri())
+            .token("s.1234567890abcdef")
+            .build()
+            .unwrap(),
+    )
+    .unwrap();
+
+    let data = "Hello, world!";
+    let expected_request: serde_json::Value = serde_json::json!({
+        "data": "tuFtJ6xatCen9okArFVZzictxsN8grPgUiRsgiRMUOQ="
+    });
+    let response = serde_json::json!({
+        "request_id": "73baca4c-5690-a384-2105-751e4e33f0da",
+        "lease_id": "",
+        "renewable": false,
+        "lease_duration": 0,
+        "data": {
+            "signature": "HgBoSOuweiQUHuXpTjqaSv8yoGUDh37GnMJg9ZyOeTRrjrE9xetYSq-Onjej_kdswHj8FnNRxRhqpYt8jrX71w=="
+        },
+        "wrap_info": null,
+        "warnings": null,
+        "auth": null
+    });
+
+    Mock::given(method("POST"))
+        .and(path(
+            "/v1/quorum/keys/dd4b594d-4b89-480d-a8a8-01ed7e1f0140/sign",
+        ))
+        .and(body_json(&expected_request))
+        .respond_with(ResponseTemplate::new(200).set_body_json(&response))
+        .mount(&mock)
+        .await;
+
+    let hash = keccak256(data.as_bytes());
+
+    let signature = api::sign_hash(
+        &vault_client,
+        "quorum",
+        "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",
+        hash,
     )
     .await
     .unwrap();

@@ -249,8 +249,9 @@ pub async fn sign(
 }
 
 /// Sign a message
+/// Data must be a 32 byte hash
 /// See [SignRequest]
-pub async fn sign_raw(
+pub async fn sign_hash(
     client: &impl Client,
     mount: &str,
     id: &str,
