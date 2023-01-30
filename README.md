@@ -12,12 +12,20 @@ The following backends are supported:
     * List Ethereum Accounts
     * Read Ethereum Account by Address
     * Sign Ethereum Transaction (only Legacy)
+    * Import Private Key
+* Keys
+    * Create Key
+    * List Keys
+    * Read Key
+    * Delete Key
+    * Sign Data
+    * Import Private Key
 
 ## Installation
 Add the following to your `Cargo.toml`:
 ```toml
 [dependencies]
-quorum-vault-client = "0.1.0"
+quorum-vault-client = "0.2.1"
 ```
 
 ## Usage
@@ -167,7 +175,7 @@ async fn main() {
 
     tx.gas_price = Some(U256::from(1));
 
-    let sign_transaction = quorum_vault_client::api::sign_transaction(&client, "quorum", 1, &tx).await.unwrap();
+    let sign_transaction = quorum_vault_client::api::sign_transaction(&client, "quorum", 1, tx).await.unwrap();
     println!("result: {:?}", sign_transaction);
 }
 
@@ -177,4 +185,146 @@ Result of the execution is the following:
 
 ```bash
 > signature: EthereumSignTransactionResponse { signature: "0xf29001752503d05ae83874193a8d866d49fc897c1a2fcb6229a0c61e4b5663f7097817a26f4c6014bbfd24c484bad9587c9c627c6f70d020f8638a4067bb78e801" }
+```
+
+### Keys
+
+**Create Key**
+
+The following example creates a new key in the Vault.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+use quorum_vault_client::api::KeyCryptoAlgorithm;
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let created_key = quorum_vault_client::api::create_key(&client, "quorum", "some-id", KeyCryptoAlgorithm::Secp256k1, [("tag".to_string(), "value".to_string())].into_iter().collect()).await.unwrap();
+
+    println!("result: {:?}", created_key);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value0"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
+```
+
+**Read Key**
+
+The following example reads the key by id.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+  // Create a client
+  let client = VaultClient::new(
+    VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+  ).unwrap();
+
+  let key = quorum_vault_client::api::read_key(&client, "quorum", "some-id").await.unwrap();
+    println!("result: {:?}", key);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value0"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
+```
+
+**List Keys**
+
+The following example lists all keys in the Vault.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+  // Create a client
+  let client = VaultClient::new(
+    VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+  ).unwrap();
+  
+  let keys = quorum_vault_client::api::list_keys(&client, "quorum").await.unwrap();
+  println!("result: {:?}", keys);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: KeysResponse { keys: ["some-id"] }
+```
+
+**Delete Key**
+
+The following example deletes the key by id.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+  // Create a client
+  let client = VaultClient::new(
+    VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+  ).unwrap();
+
+  quorum_vault_client::api::destroy_key(&client, "quorum", "some-id").await.unwrap();
+}
+```
+
+**Sign data**
+
+The following example signs the data by key id.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+  // Create a client
+  let client = VaultClient::new(
+    VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+  ).unwrap();
+
+  let signature = quorum_vault_client::api::sign(&client, "quorum", "some-id", "some-data".as_bytes().await.unwrap();
+  println!("signature: {:?}", signature);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> signature: SignResponse { signature: "Z1ibkBIGjMLh5pSR5mFZ5NbesrM57g-FGkFr0sbIyIlI_M0BYVN_LD-Nt7x1wUo6AoLQyL0I-z7PD8MsdgmkhQ==" }
 ```
