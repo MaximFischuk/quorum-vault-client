@@ -78,7 +78,7 @@ async fn test_list_zksnarks_account() {
         "auth": null
     });
 
-    Mock::given(method("LIST"))
+    Mock::given(method("GET"))
         .and(path("/v1/quorum/zk-snarks/accounts"))
         .respond_with(ResponseTemplate::new(200).set_body_json(&response))
         .mount(&mock)
