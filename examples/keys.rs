@@ -7,7 +7,7 @@ async fn main() {
     let client = VaultClient::new(
         VaultClientSettingsBuilder::default()
             .address("http://127.0.0.1:8200")
-            .token("s.NgpQWnkfYEAxVPC83Bxfa7cy")
+            .token("root")
             .build()
             .unwrap(),
     )
