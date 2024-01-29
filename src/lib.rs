@@ -70,7 +70,7 @@
 //!     ).unwrap();
 //!
 //!     // By default the plugin mounts the Ethereum backend at the path "quorum"
-//!     let created_account = quorum_vault_client::api::create_account(&client, "quorum").await.unwrap();
+//!     let created_account = quorum_vault_client::api::ethereum::create_account(&client, "quorum").await.unwrap();
 //!     println!("result: {:?}", created_account);
 //! }
 //!
@@ -99,7 +99,7 @@
 //!             .unwrap()
 //!     ).unwrap();
 //!
-//!     let list_accounts = quorum_vault_client::api::list_accounts(&client, "quorum").await.unwrap();
+//!     let list_accounts = quorum_vault_client::api::ethereum::list_accounts(&client, "quorum").await.unwrap();
 //!     println!("result: {:?}", list_accounts);
 //! }
 //!
@@ -131,7 +131,7 @@
 //!     ).unwrap();
 //!
 //!     let address = Address::from_str("0x8d3113e29CB92F44F1762E52D2a0276509b36b82").unwrap();
-//!     let read_account = quorum_vault_client::api::read_account(&client, "quorum", address).await.unwrap();
+//!     let read_account = quorum_vault_client::api::ethereum::read_account(&client, "quorum", address).await.unwrap();
 //!     println!("result: {:?}", read_account);
 //! }
 //!
@@ -173,7 +173,7 @@
 //!
 //!     tx.gas_price = Some(U256::from(1));
 //!
-//!     let sign_transaction = quorum_vault_client::api::sign_transaction(&client, "quorum", 1, tx).await.unwrap();
+//!     let sign_transaction = quorum_vault_client::api::ethereum::sign_transaction(&client, "quorum", 1, tx).await.unwrap();
 //!     println!("result: {:?}", sign_transaction);
 //! }
 //!
@@ -193,7 +193,7 @@
 //!
 //! ```no_run
 //! use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
-//! use quorum_vault_client::api::KeyCryptoAlgorithm;
+//! use quorum_vault_client::api::keys::KeyCryptoAlgorithm;
 //!
 //! #[tokio::main]
 //! async fn main() {
@@ -206,7 +206,7 @@
 //!             .unwrap()
 //!     ).unwrap();
 //!
-//!     let created_key = quorum_vault_client::api::create_key(&client, "quorum", "some-id", KeyCryptoAlgorithm::Secp256k1, [("tag".to_string(), "value".to_string())].into_iter().collect()).await.unwrap();
+//!     let created_key = quorum_vault_client::api::keys::create_key(&client, "quorum", "some-id", KeyCryptoAlgorithm::Secp256k1, [("tag".to_string(), "value".to_string())].into_iter().collect()).await.unwrap();
 //!
 //!     println!("result: {:?}", created_key);
 //! }
@@ -236,7 +236,7 @@
 //!             .unwrap()
 //!   ).unwrap();
 //!
-//!   let key = quorum_vault_client::api::read_key(&client, "quorum", "some-id").await.unwrap();
+//!   let key = quorum_vault_client::api::keys::read_key(&client, "quorum", "some-id").await.unwrap();
 //!     println!("result: {:?}", key);
 //! }
 //! ```
@@ -265,7 +265,7 @@
 //!             .unwrap()
 //!   ).unwrap();
 //!
-//!   let keys = quorum_vault_client::api::list_keys(&client, "quorum").await.unwrap();
+//!   let keys = quorum_vault_client::api::keys::list_keys(&client, "quorum").await.unwrap();
 //!   println!("result: {:?}", keys);
 //! }
 //! ```
@@ -294,7 +294,7 @@
 //!             .unwrap()
 //!   ).unwrap();
 //!
-//!   quorum_vault_client::api::destroy_key(&client, "quorum", "some-id").await.unwrap();
+//!   quorum_vault_client::api::keys::destroy_key(&client, "quorum", "some-id").await.unwrap();
 //! }
 //! ```
 //!
@@ -316,7 +316,7 @@
 //!             .unwrap()
 //!   ).unwrap();
 //!
-//!   let signature = quorum_vault_client::api::sign(&client, "quorum", "some-id", "some-data".as_bytes()).await.unwrap();
+//!   let signature = quorum_vault_client::api::keys::sign(&client, "quorum", "some-id", "some-data".as_bytes()).await.unwrap();
 //!   println!("signature: {:?}", signature);
 //! }
 //! ```

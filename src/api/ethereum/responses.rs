@@ -24,3 +24,10 @@ pub struct EthereumSignTransactionResponse {
 pub struct EthereumAccountsResponse {
     pub keys: Vec<Address>,
 }
+
+/// Response from executing
+/// [EthereumSignRequest][crate::api::ethereum::requests::EthereumSignRequest]
+#[derive(Deserialize, Debug, Serialize)]
+pub struct EthereumSignResponse {
+    pub signature: String,
+}

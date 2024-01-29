@@ -1,5 +1,5 @@
 use quorum_vault_client::api;
-use quorum_vault_client::api::KeyCryptoAlgorithm;
+use quorum_vault_client::api::keys::KeyCryptoAlgorithm;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 use web3::signing::keccak256;
 use wiremock::matchers::{body_json, method, path};
@@ -58,7 +58,7 @@ async fn test_create_key() {
         .mount(&mock)
         .await;
 
-    let key = api::create_key(
+    let key = api::keys::create_key(
         &vault_client,
         "quorum",
         "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",
@@ -130,7 +130,7 @@ async fn test_read_key() {
         .mount(&mock)
         .await;
 
-    let key = api::read_key(
+    let key = api::keys::read_key(
         &vault_client,
         "quorum",
         "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",
@@ -186,7 +186,7 @@ async fn test_get_list_keys() {
         .mount(&mock)
         .await;
 
-    let keys = api::list_keys(&vault_client, "quorum").await.unwrap();
+    let keys = api::keys::list_keys(&vault_client, "quorum").await.unwrap();
 
     assert_eq!(keys.keys, vec!["dd4b594d-4b89-480d-a8a8-01ed7e1f0140"]);
 }
@@ -230,7 +230,7 @@ async fn test_sign_data() {
         .mount(&mock)
         .await;
 
-    let signature = api::sign(
+    let signature = api::keys::sign(
         &vault_client,
         "quorum",
         "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",
@@ -285,7 +285,7 @@ async fn test_sign_hash() {
 
     let hash = keccak256(data.as_bytes());
 
-    let signature = api::sign_hash(
+    let signature = api::keys::sign_hash(
         &vault_client,
         "quorum",
         "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",
@@ -349,7 +349,7 @@ async fn test_update_key_tags() {
         .mount(&mock)
         .await;
 
-    let key = api::update_key_tags(
+    let key = api::keys::update_key_tags(
         &vault_client,
         "quorum",
         "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",
@@ -398,7 +398,7 @@ async fn test_destroy_key() {
         .mount(&mock)
         .await;
 
-    api::destroy_key(
+    api::keys::destroy_key(
         &vault_client,
         "quorum",
         "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",
@@ -460,7 +460,7 @@ async fn test_import_key() {
         .mount(&mock)
         .await;
 
-    let key = api::import_key(
+    let key = api::keys::import_key(
         &vault_client,
         "quorum",
         "dd4b594d-4b89-480d-a8a8-01ed7e1f0140",

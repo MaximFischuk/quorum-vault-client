@@ -39,7 +39,9 @@ async fn test_create_wallet() {
         .mount(&mock)
         .await;
 
-    let wallet = api::create_account(&vault_client, "quorum").await.unwrap();
+    let wallet = api::ethereum::create_account(&vault_client, "quorum")
+        .await
+        .unwrap();
 
     assert_eq!(
         format!("{:?}", wallet.address),
@@ -87,7 +89,9 @@ async fn test_get_list_accounts() {
         .mount(&mock)
         .await;
 
-    let accounts = api::list_accounts(&vault_client, "quorum").await.unwrap();
+    let accounts = api::ethereum::list_accounts(&vault_client, "quorum")
+        .await
+        .unwrap();
 
     assert_eq!(accounts.keys.len(), 2);
     assert_eq!(
@@ -138,7 +142,7 @@ async fn test_read_account() {
         .mount(&mock)
         .await;
 
-    let account = api::read_account(&vault_client, "quorum", address)
+    let account = api::ethereum::read_account(&vault_client, "quorum", address)
         .await
         .unwrap();
 
@@ -208,7 +212,7 @@ async fn test_sign_transaction() {
 
     tx.gas_price = Some(U256::from(1));
 
-    let signature = api::sign_transaction(&vault_client, "quorum", 1, tx)
+    let signature = api::ethereum::sign_transaction(&vault_client, "quorum", 1, tx)
         .await
         .unwrap();
 
@@ -253,7 +257,7 @@ async fn test_import_private_key() {
         .mount(&mock)
         .await;
 
-    let wallet = api::import_private_key(
+    let wallet = api::ethereum::import_private_key(
         &vault_client,
         "quorum",
         "0a1232595b77534d99364bfde13383accbcb40775967a7eacd15d355c96288a5",
@@ -271,4 +275,53 @@ async fn test_import_private_key() {
     );
     assert_eq!(wallet.public_key, "0x046b5ae5ec570abb9c4c50746d08fb63c911641170581b07f5f531a993b8b6cbeced5f8e3de3f4c7416a7661ed2c7eef8fea416c62df47ec43896af26086b87594");
     assert_eq!(wallet.namespace, "");
+}
+
+#[tokio::test]
+async fn test_sign_message() {
+    let mock = MockServer::start().await;
+    let vault_client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address(mock.uri())
+            .token("s.1234567890abcdef")
+            .build()
+            .unwrap(),
+    )
+    .unwrap();
+
+    let data = b"Hello, world!";
+
+    let expected_request = serde_json::json!({
+        "data": "0x48656c6c6f2c20776f726c6421"
+    });
+
+    let response = serde_json::json!({
+        "request_id": "e81af2c4-4e4c-a640-0f8f-99ce3f7d486a",
+        "lease_id": "",
+        "renewable": false,
+        "lease_duration": 0,
+        "data": {
+            "signature": "0xe7905251968e28d6a3696e0c01e5b20ce9e83f185848fe91804d74d958b2aadd28846e605f4e7efac7b4446508607b35e46151f72a6e917e82241781206418d601"
+        },
+        "wrap_info": null,
+        "warnings": null,
+        "auth": null
+    });
+
+    Mock::given(method("POST"))
+        .and(path(
+            "/v1/quorum/ethereum/accounts/0xAd38E61dB0D3f8fEF9B4c5DD0C1A9F691cdCcfF5/sign",
+        ))
+        .and(body_json(&expected_request))
+        .respond_with(ResponseTemplate::new(200).set_body_json(&response))
+        .mount(&mock)
+        .await;
+
+    let address = Address::from_str("0xAd38E61dB0D3f8fEF9B4c5DD0C1A9F691cdCcfF5").unwrap();
+
+    let signature = api::ethereum::sign(&vault_client, "quorum", address, data)
+        .await
+        .unwrap();
+
+    assert_eq!(signature.signature, "0xe7905251968e28d6a3696e0c01e5b20ce9e83f185848fe91804d74d958b2aadd28846e605f4e7efac7b4446508607b35e46151f72a6e917e82241781206418d601");
 }

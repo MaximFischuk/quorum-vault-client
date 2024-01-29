@@ -1,4 +1,4 @@
-use quorum_vault_client::api::KeyCryptoAlgorithm;
+use quorum_vault_client::api::keys::KeyCryptoAlgorithm;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
 
 #[tokio::main]
@@ -15,7 +15,7 @@ async fn main() {
 
     let key_id = "some-id";
 
-    let new_key = quorum_vault_client::api::create_key(
+    let new_key = quorum_vault_client::api::keys::create_key(
         &client,
         "quorum",
         key_id,
@@ -28,23 +28,23 @@ async fn main() {
     .unwrap();
     println!("key: {new_key:?}");
 
-    let keys = quorum_vault_client::api::list_keys(&client, "quorum")
+    let keys = quorum_vault_client::api::keys::list_keys(&client, "quorum")
         .await
         .unwrap();
     println!("keys: {keys:?}");
 
-    let read_key = quorum_vault_client::api::read_key(&client, "quorum", key_id)
+    let read_key = quorum_vault_client::api::keys::read_key(&client, "quorum", key_id)
         .await
         .unwrap();
     println!("read_key: {read_key:?}");
 
     let signature =
-        quorum_vault_client::api::sign(&client, "quorum", key_id, "some-data".as_bytes())
+        quorum_vault_client::api::keys::sign(&client, "quorum", key_id, "some-data".as_bytes())
             .await
             .unwrap();
     println!("signature: {signature:?}");
 
-    let updated_tags = quorum_vault_client::api::update_key_tags(
+    let updated_tags = quorum_vault_client::api::keys::update_key_tags(
         &client,
         "quorum",
         key_id,
@@ -56,7 +56,7 @@ async fn main() {
     .unwrap();
     println!("updated_tags: {updated_tags:?}");
 
-    quorum_vault_client::api::destroy_key(&client, "quorum", "some-id")
+    quorum_vault_client::api::keys::destroy_key(&client, "quorum", "some-id")
         .await
         .unwrap();
     println!("destroyed key: {key_id}");

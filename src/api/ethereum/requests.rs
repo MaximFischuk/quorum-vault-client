@@ -1,5 +1,6 @@
 use crate::api::ethereum::responses::{
-    EthereumAccountResponse, EthereumAccountsResponse, EthereumSignTransactionResponse,
+    EthereumAccountResponse, EthereumAccountsResponse, EthereumSignResponse,
+    EthereumSignTransactionResponse,
 };
 use rustify_derive::Endpoint;
 use web3::types::Bytes;
@@ -118,4 +119,27 @@ pub struct ImportPrivateKeyRequest {
     pub mount: String,
     #[endpoint(body)]
     pub private_key: String,
+}
+
+/// ## Sign Arbitrary Message
+/// This endpoint signs an arbitrary message.
+///
+/// * Path: {self.mount}/ethereum/accounts/{self.address}/sign
+/// * Method: POST
+/// * Response: [EthereumSignResponse]
+#[derive(Builder, Debug, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/ethereum/accounts/{self.address}/sign",
+    method = "POST",
+    response = "EthereumSignResponse",
+    builder = "true"
+)]
+#[builder(setter(into))]
+pub struct EthereumSignRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    pub address: String,
+    #[endpoint(body)]
+    pub data: String,
 }

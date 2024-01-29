@@ -38,7 +38,7 @@ async fn test_create_zksnarks_account() {
         .mount(&mock)
         .await;
 
-    let account = api::create_zksnarks_account(&vault_client, "quorum")
+    let account = api::zksnarks::create_zksnarks_account(&vault_client, "quorum")
         .await
         .unwrap();
 
@@ -84,7 +84,7 @@ async fn test_list_zksnarks_account() {
         .mount(&mock)
         .await;
 
-    let accounts = api::list_zksnarks_accounts(&vault_client, "quorum")
+    let accounts = api::zksnarks::list_zksnarks_accounts(&vault_client, "quorum")
         .await
         .unwrap();
 
@@ -129,7 +129,7 @@ async fn test_read_zksnarks_account() {
         .mount(&mock)
         .await;
 
-    let account = api::read_zksnarks_account(
+    let account = api::zksnarks::read_zksnarks_account(
         &vault_client,
         "quorum",
         "0x7e8249b895434a1b02aade22033b887620ab5e756aa106d415ff33ace9048626",
@@ -184,7 +184,7 @@ async fn test_sign_message() {
         .mount(&mock)
         .await;
 
-    let signature = api::zksnarks_sign(
+    let signature = api::zksnarks::zksnarks_sign(
         &vault_client,
         "quorum",
         "0x7e8249b895434a1b02aade22033b887620ab5e756aa106d415ff33ace9048626",
@@ -235,7 +235,7 @@ async fn test_sign_hash() {
         .mount(&mock)
         .await;
 
-    let signature = api::zksnarks_sign_hash(
+    let signature = api::zksnarks::zksnarks_sign_hash(
         &vault_client,
         "quorum",
         "0x7e8249b895434a1b02aade22033b887620ab5e756aa106d415ff33ace9048626",

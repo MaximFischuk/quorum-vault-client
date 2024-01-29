@@ -13,26 +13,29 @@ async fn main() {
     .unwrap();
 
     // Create a new account
-    let account = quorum_vault_client::api::create_zksnarks_account(&client, "quorum")
+    let account = quorum_vault_client::api::zksnarks::create_zksnarks_account(&client, "quorum")
         .await
         .unwrap();
     println!("account: {:?}", account);
 
     // Read the account
-    let account =
-        quorum_vault_client::api::read_zksnarks_account(&client, "quorum", &account.public_key)
-            .await
-            .unwrap();
+    let account = quorum_vault_client::api::zksnarks::read_zksnarks_account(
+        &client,
+        "quorum",
+        &account.public_key,
+    )
+    .await
+    .unwrap();
     println!("account: {:?}", account);
 
     // List the accounts
-    let accounts = quorum_vault_client::api::list_zksnarks_accounts(&client, "quorum")
+    let accounts = quorum_vault_client::api::zksnarks::list_zksnarks_accounts(&client, "quorum")
         .await
         .unwrap();
     println!("accounts: {:?}", accounts);
 
     // Sign a message
-    let signature = quorum_vault_client::api::zksnarks_sign(
+    let signature = quorum_vault_client::api::zksnarks::zksnarks_sign(
         &client,
         "quorum",
         &account.public_key,
