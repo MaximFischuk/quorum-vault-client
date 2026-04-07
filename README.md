@@ -13,6 +13,7 @@ The following backends are supported:
     * Read Ethereum Account by Address
     * Sign Ethereum Transaction (only Legacy)
     * Import Private Key
+    * Sign Arbitrary Data
 * Keys
     * Create Key
     * List Keys
@@ -20,6 +21,145 @@ The following backends are supported:
     * Delete Key
     * Sign Data
     * Import Private Key
+* ZK-SNARKs
+    * Create ZK-SNARKs Account
+    * Read ZK-SNARKs Account
+    * List ZK-SNARKs Accounts
+    * Sign Data
+
+## Migrating to v2.0
+
+Version 2.0 is a major release that replaces the unmaintained [`web3`](https://crates.io/crates/web3) crate with the actively maintained [`alloy`](https://github.com/alloy-rs) ecosystem, updates the Rust edition to **2024**, and introduces stricter typing across the API.
+
+### Breaking Changes at a Glance
+
+| Area | v1.x | v2.0 |
+|---|---|---|
+| **Rust edition** | 2021 | 2024 |
+| **Ethereum types** | `web3 = "0.19"` | `alloy-primitives = "1"` |
+| **Transaction types** | `web3::types::TransactionRequest` | `alloy-rpc-types-eth::TransactionRequest` |
+| **Address checksumming** | `eth_checksum` crate | Built-in `Address::to_checksum(None)` |
+| **Keccak256 hashing** | `web3::signing::keccak256()` | `alloy_primitives::keccak256()` |
+| **Re-exports** | `pub use web3::types::*` | `pub use alloy_primitives::*` |
+
+### 1. Update your `Cargo.toml`
+
+Remove `web3` from your dependencies and add `alloy-primitives` if you use Ethereum primitive types directly:
+
+```toml
+[dependencies]
+quorum-vault-client = "2.0.0"
+# Only needed if you construct alloy types directly:
+# alloy-primitives = "1"
+# alloy-rpc-types-eth = "1"
+```
+
+### 2. Update imports
+
+The crate now re-exports types from `alloy_primitives` instead of `web3::types`:
+
+```rust
+// v1.x
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+use web3::types::{Address, U256, TransactionRequest};
+
+// v2.0
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder, Address, U256, TransactionRequest};
+```
+
+All commonly used types (`Address`, `U256`, `Bytes`, etc.) keep the same names but come from `alloy_primitives`. If you were importing `web3::types::*` directly, replace those imports with `alloy_primitives::*`.
+
+> **Note:** `H256` from web3 is replaced by `B256` in alloy.
+
+### 3. Update `TransactionRequest` construction
+
+The `TransactionRequest` builder API has changed significantly:
+
+```rust
+// v1.x
+let mut tx = TransactionRequest::builder()
+    .from(address)
+    .to(address)
+    .value(U256::from_dec_str("1000000000000000000").unwrap())
+    .gas(U256::from(21000))
+    .nonce(U256::from(0))
+    .build();
+tx.gas_price = Some(U256::from(1));
+
+// v2.0
+let tx = TransactionRequest::default()
+    .from(address)
+    .to(address)
+    .value(U256::from_str("1000000000000000000").unwrap())
+    .gas_limit(21000)
+    .gas_price(1)
+    .nonce(0);
+```
+
+Key differences:
+- `TransactionRequest::builder().build()` → `TransactionRequest::default()` (no `.build()` call)
+- `.gas(U256)` → `.gas_limit(u64)` — accepts a native integer
+- `.nonce(U256)` → `.nonce(u64)` — accepts a native integer
+- `.gas_price` is now set via the builder chain, not as a mutable field
+- `U256::from_dec_str(...)` → `U256::from_str(...)` (requires `use std::str::FromStr`)
+
+### 4. Update `import_private_key` calls
+
+The `import_private_key` function now accepts `B256` instead of `&str` for type safety:
+
+```rust
+// v1.x
+quorum_vault_client::api::ethereum::import_private_key(
+    &client, "quorum", "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+).await.unwrap();
+
+// v2.0
+use std::str::FromStr;
+use quorum_vault_client::B256;
+
+let private_key: B256 = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+    .parse()
+    .unwrap();
+quorum_vault_client::api::ethereum::import_private_key(
+    &client, "quorum", private_key
+).await.unwrap();
+```
+
+### 5. API module paths
+
+API functions are organized under submodules. Ensure you use the full path:
+
+```rust
+// Ethereum
+quorum_vault_client::api::ethereum::create_account(&client, "quorum").await?;
+quorum_vault_client::api::ethereum::list_accounts(&client, "quorum").await?;
+quorum_vault_client::api::ethereum::read_account(&client, "quorum", address).await?;
+quorum_vault_client::api::ethereum::sign_transaction(&client, "quorum", chain_id, tx).await?;
+quorum_vault_client::api::ethereum::import_private_key(&client, "quorum", private_key).await?;
+quorum_vault_client::api::ethereum::sign(&client, "quorum", address, data).await?;
+
+// Keys
+quorum_vault_client::api::keys::create_key(&client, "quorum", id, algorithm, tags).await?;
+quorum_vault_client::api::keys::read_key(&client, "quorum", id).await?;
+quorum_vault_client::api::keys::list_keys(&client, "quorum").await?;
+quorum_vault_client::api::keys::destroy_key(&client, "quorum", id).await?;
+quorum_vault_client::api::keys::sign(&client, "quorum", id, data).await?;
+quorum_vault_client::api::keys::sign_hash(&client, "quorum", id, hash).await?;
+
+// ZK-SNARKs (new)
+quorum_vault_client::api::zksnarks::create_zksnarks_account(&client, "quorum").await?;
+quorum_vault_client::api::zksnarks::read_zksnarks_account(&client, "quorum", id).await?;
+quorum_vault_client::api::zksnarks::list_zksnarks_accounts(&client, "quorum").await?;
+quorum_vault_client::api::zksnarks::zksnarks_sign(&client, "quorum", id, data).await?;
+quorum_vault_client::api::zksnarks::zksnarks_sign_hash(&client, "quorum", id, hash).await?;
+```
+
+### 6. New features in v2.0
+
+- **ZK-SNARKs support** — Full API for creating, reading, listing zk-SNARKs (EdDSA/BabyJubJub) accounts and signing data.
+- **`sign` function for Ethereum** — Sign arbitrary data with an Ethereum account.
+- **`sign_hash` functions** — Both Keys and ZK-SNARKs modules now provide `sign_hash` for signing pre-computed 32-byte digests (bypassing internal keccak256 hashing).
+- **`update_key_tags`** — Update metadata tags on an existing key.
 
 ## Installation
 Add the following to your `Cargo.toml`:

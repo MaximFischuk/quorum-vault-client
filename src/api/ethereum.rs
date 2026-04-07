@@ -101,6 +101,7 @@ pub async fn import_private_key(
     mount: &str,
     private_key: B256,
 ) -> Result<EthereumAccountResponse, ClientError> {
+    // The API expects the private key as a hex string without the "0x" prefix
     let private_key_hex = format!("{:x}", private_key);
     let request = ImportPrivateKeyRequest::builder()
         .mount(mount)
