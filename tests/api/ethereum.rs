@@ -51,7 +51,10 @@ async fn test_create_wallet() {
         wallet.compressed_public_key,
         "0x031bb8452df3cd3a997a74f0ebbaed4e85136af34532b915eb4cefb0f4feda0a56"
     );
-    assert_eq!(wallet.public_key, "0x041bb8452df3cd3a997a74f0ebbaed4e85136af34532b915eb4cefb0f4feda0a5697f47f6093b0a1e16de93c5a478771e6e30ac71de08fcb3bc89706630d24aac5");
+    assert_eq!(
+        wallet.public_key,
+        "0x041bb8452df3cd3a997a74f0ebbaed4e85136af34532b915eb4cefb0f4feda0a5697f47f6093b0a1e16de93c5a478771e6e30ac71de08fcb3bc89706630d24aac5"
+    );
     assert_eq!(wallet.namespace, "");
 }
 
@@ -154,7 +157,10 @@ async fn test_read_account() {
         account.compressed_public_key,
         "0x03e4e5a8a5a1c909b70e8a9b9ce8cb02dc7e2783580d6e5babb989cb595e407704"
     );
-    assert_eq!(account.public_key, "0x04e4e5a8a5a1c909b70e8a9b9ce8cb02dc7e2783580d6e5babb989cb595e4077040c1f6b6c38ac7ec3b74880aa578c6151e835e6265db6ce4d1e45a5c31855a689");
+    assert_eq!(
+        account.public_key,
+        "0x04e4e5a8a5a1c909b70e8a9b9ce8cb02dc7e2783580d6e5babb989cb595e4077040c1f6b6c38ac7ec3b74880aa578c6151e835e6265db6ce4d1e45a5c31855a689"
+    );
     assert_eq!(account.namespace, "");
 }
 
@@ -216,7 +222,10 @@ async fn test_sign_transaction() {
         .await
         .unwrap();
 
-    assert_eq!(signature.signature, "0x3f3c03151a9451832d7b3abacec63cee23e4f697690db03e980ce5b02594a6e6657e236309cbcaa0de351162d69422aa3ebaf2349a8c5e612bd971d9de18be8501");
+    assert_eq!(
+        signature.signature,
+        "0x3f3c03151a9451832d7b3abacec63cee23e4f697690db03e980ce5b02594a6e6657e236309cbcaa0de351162d69422aa3ebaf2349a8c5e612bd971d9de18be8501"
+    );
 }
 
 #[tokio::test]
@@ -273,7 +282,10 @@ async fn test_import_private_key() {
         wallet.compressed_public_key,
         "0x026b5ae5ec570abb9c4c50746d08fb63c911641170581b07f5f531a993b8b6cbec"
     );
-    assert_eq!(wallet.public_key, "0x046b5ae5ec570abb9c4c50746d08fb63c911641170581b07f5f531a993b8b6cbeced5f8e3de3f4c7416a7661ed2c7eef8fea416c62df47ec43896af26086b87594");
+    assert_eq!(
+        wallet.public_key,
+        "0x046b5ae5ec570abb9c4c50746d08fb63c911641170581b07f5f531a993b8b6cbeced5f8e3de3f4c7416a7661ed2c7eef8fea416c62df47ec43896af26086b87594"
+    );
     assert_eq!(wallet.namespace, "");
 }
 
@@ -323,5 +335,8 @@ async fn test_sign_message() {
         .await
         .unwrap();
 
-    assert_eq!(signature.signature, "0xe7905251968e28d6a3696e0c01e5b20ce9e83f185848fe91804d74d958b2aadd28846e605f4e7efac7b4446508607b35e46151f72a6e917e82241781206418d601");
+    assert_eq!(
+        signature.signature,
+        "0xe7905251968e28d6a3696e0c01e5b20ce9e83f185848fe91804d74d958b2aadd28846e605f4e7efac7b4446508607b35e46151f72a6e917e82241781206418d601"
+    );
 }

@@ -193,7 +193,10 @@ async fn test_sign_message() {
     .await
     .unwrap();
 
-    assert_eq!(signature.signature, "0xac34541ff103beac043f2525d756c9a5f4288be4910c33f49c4fcea69b766ca6011b28e6ad62a1a3eddf2cc08ca7265553c175ffa60982616fa4facaf5f87d4a");
+    assert_eq!(
+        signature.signature,
+        "0xac34541ff103beac043f2525d756c9a5f4288be4910c33f49c4fcea69b766ca6011b28e6ad62a1a3eddf2cc08ca7265553c175ffa60982616fa4facaf5f87d4a"
+    );
 }
 
 #[tokio::test]
@@ -244,5 +247,8 @@ async fn test_sign_hash() {
     .await
     .unwrap();
 
-    assert_eq!(signature.signature, "0xac34541ff103beac043f2525d756c9a5f4288be4910c33f49c4fcea69b766ca6011b28e6ad62a1a3eddf2cc08ca7265553c175ffa60982616fa4facaf5f87d4a");
+    assert_eq!(
+        signature.signature,
+        "0xac34541ff103beac043f2525d756c9a5f4288be4910c33f49c4fcea69b766ca6011b28e6ad62a1a3eddf2cc08ca7265553c175ffa60982616fa4facaf5f87d4a"
+    );
 }

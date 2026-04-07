@@ -54,9 +54,7 @@ pub async fn create_key(
         .tags(tags)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Read a Key
@@ -71,18 +69,14 @@ pub async fn read_key(
         .id(id)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// List Keys
 /// See [ListKeysRequest]
 pub async fn list_keys(client: &impl Client, mount: &str) -> Result<KeysResponse, ClientError> {
     let request = ListKeysRequest::builder().mount(mount).build().unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Update a Key tags
@@ -99,9 +93,7 @@ pub async fn update_key_tags(
         .tags(tags)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Destroy a Key
@@ -112,9 +104,7 @@ pub async fn destroy_key(client: &impl Client, mount: &str, id: &str) -> Result<
         .id(id)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_empty_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_empty_result(client, request).await
 }
 
 /// Import a Key
@@ -136,9 +126,7 @@ pub async fn import_key(
         .private_key(private_key)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Sign a message
@@ -157,9 +145,7 @@ pub async fn sign(
         .data(encoded)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Sign a message
@@ -178,7 +164,5 @@ pub async fn sign_hash(
         .data(encoded)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }

@@ -27,9 +27,7 @@ pub async fn create_account(
         .mount(mount)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// List Ethereum accounts.
@@ -43,9 +41,7 @@ pub async fn list_accounts(
         .mount(mount)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Read an Ethereum account.
@@ -63,9 +59,7 @@ pub async fn read_account(
         .address(checksummed)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Sign an Ethereum transaction.
@@ -91,9 +85,7 @@ pub async fn sign_transaction(
         .data(transaction.data.unwrap_or_default())
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Import a Private Key
@@ -108,9 +100,7 @@ pub async fn import_private_key(
         .private_key(private_key)
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Sign a message with an Ethereum account.
@@ -129,7 +119,5 @@ pub async fn sign(
         .data(format!("0x{}", hex::encode(data)))
         .build()
         .unwrap();
-    vaultrs::api::exec_with_result(client, request)
-        .await
-        .map_err(Into::into)
+    vaultrs::api::exec_with_result(client, request).await
 }
