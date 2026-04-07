@@ -1,5 +1,7 @@
+use alloy_primitives::U256;
+use alloy_rpc_types_eth::TransactionRequest;
+use std::str::FromStr;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
-use web3::types::{TransactionRequest, U256};
 
 #[tokio::main]
 async fn main() {
@@ -29,15 +31,13 @@ async fn main() {
         .unwrap();
     println!("result: {:?}", result);
 
-    let mut tx: TransactionRequest = TransactionRequest::builder()
+    let tx: TransactionRequest = TransactionRequest::default()
         .from(address)
         .to(address)
-        .value(U256::from_dec_str("1000000000000000000").unwrap())
-        .gas(U256::from(21000))
-        .nonce(U256::from(0))
-        .build();
-
-    tx.gas_price = Some(U256::from(1));
+        .value(U256::from_str("1000000000000000000").unwrap())
+        .gas_limit(21000)
+        .gas_price(1)
+        .nonce(0);
 
     let signature = quorum_vault_client::api::ethereum::sign_transaction(&client, "quorum", 1, tx)
         .await

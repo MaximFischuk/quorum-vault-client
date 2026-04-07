@@ -25,7 +25,7 @@ The following backends are supported:
 Add the following to your `Cargo.toml`:
 ```toml
 [dependencies]
-quorum-vault-client = "1.0.0"
+quorum-vault-client = "2.0.0"
 ```
 
 ## Usage

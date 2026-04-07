@@ -6,9 +6,10 @@ use crate::api::ethereum::responses::{
     EthereumAccountResponse, EthereumAccountsResponse, EthereumSignTransactionResponse,
 };
 
+use alloy_primitives::{Address, B256, TxKind};
+use alloy_rpc_types_eth::TransactionRequest;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
-use web3::types::{Address, TransactionRequest};
 
 use self::requests::EthereumSignRequest;
 use self::responses::EthereumSignResponse;
@@ -52,8 +53,7 @@ pub async fn read_account(
     mount: &str,
     address: Address,
 ) -> Result<EthereumAccountResponse, ClientError> {
-    let address = format!("{address:?}");
-    let checksummed = eth_checksum::checksum(&address);
+    let checksummed = address.to_checksum(None);
     let request = ReadEthereumAccountRequest::builder()
         .mount(mount)
         .address(checksummed)
@@ -71,20 +71,26 @@ pub async fn sign_transaction(
     chain_id: u64,
     transaction: TransactionRequest,
 ) -> Result<EthereumSignTransactionResponse, ClientError> {
-    let address = format!("{:?}", transaction.from);
-    let checksummed = eth_checksum::checksum(&address);
+    let checksummed = transaction.from.unwrap_or_default().to_checksum(None);
+    let to = if let Some(TxKind::Call(recipient)) = transaction.to {
+        Some(format!("0x{:x}", recipient))
+    } else {
+        // Contract creation transactions have no recipient address
+        None
+    };
     let request = SignEthereumTransactionRequest::builder()
         .mount(mount)
         .address(checksummed)
         .chain_id(chain_id.to_string())
         .amount(transaction.value.unwrap_or_default().to_string())
-        .gas_limit(transaction.gas.map(|v| v.as_u64()).unwrap_or(21000))
+        .gas_limit(transaction.gas.unwrap_or(21000))
         .gas_price(transaction.gas_price.unwrap_or_default().to_string())
-        .nonce(transaction.nonce.unwrap_or_default().as_u64())
-        .to(format!("{:?}", transaction.to.unwrap_or_default()))
-        .data(transaction.data.unwrap_or_default())
+        .nonce(transaction.nonce.unwrap_or_default())
+        .data(transaction.input.input.unwrap_or_default())
+        .to(to)
         .build()
         .unwrap();
+
     vaultrs::api::exec_with_result(client, request).await
 }
 
@@ -93,11 +99,12 @@ pub async fn sign_transaction(
 pub async fn import_private_key(
     client: &impl Client,
     mount: &str,
-    private_key: &str,
+    private_key: B256,
 ) -> Result<EthereumAccountResponse, ClientError> {
+    let private_key_hex = format!("{:x}", private_key);
     let request = ImportPrivateKeyRequest::builder()
         .mount(mount)
-        .private_key(private_key)
+        .private_key(private_key_hex)
         .build()
         .unwrap();
     vaultrs::api::exec_with_result(client, request).await
@@ -111,8 +118,7 @@ pub async fn sign(
     address: Address,
     data: &[u8],
 ) -> Result<EthereumSignResponse, ClientError> {
-    let address = format!("{address:?}");
-    let checksummed = eth_checksum::checksum(&address);
+    let checksummed = address.to_checksum(None);
     let request = EthereumSignRequest::builder()
         .mount(mount)
         .address(checksummed)

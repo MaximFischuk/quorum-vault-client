@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use alloy_primitives::keccak256;
 use base64::Engine;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
@@ -137,7 +138,7 @@ pub async fn sign(
     id: &str,
     data: &[u8],
 ) -> Result<SignResponse, ClientError> {
-    let hash = web3::signing::keccak256(data);
+    let hash = keccak256(data);
     let encoded = base64::prelude::BASE64_URL_SAFE.encode(hash);
     let request = SignRequest::builder()
         .mount(mount)

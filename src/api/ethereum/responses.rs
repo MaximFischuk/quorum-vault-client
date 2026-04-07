@@ -1,5 +1,5 @@
+use alloy_primitives::Address;
 use serde::{Deserialize, Serialize};
-use web3::types::Address;
 
 /// Response from executing
 /// [ReadEthereumAccountRequest][crate::api::ethereum::requests::ReadEthereumAccountRequest]

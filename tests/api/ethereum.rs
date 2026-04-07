@@ -1,7 +1,9 @@
-use quorum_vault_client::api;
 use std::str::FromStr;
+
+use alloy_primitives::{Address, U256};
+use alloy_rpc_types_eth::TransactionRequest;
+use quorum_vault_client::api;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
-use web3::types::{Address, TransactionRequest, U256};
 use wiremock::matchers::{body_json, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -208,15 +210,13 @@ async fn test_sign_transaction() {
     let address = Address::from_str("0xAd38E61dB0D3f8fEF9B4c5DD0C1A9F691cdCcfF5").unwrap();
     let to = Address::from_str("0x1daBe0aCaAA4D1F81b9b43Eaf51C8439378231a0").unwrap();
 
-    let mut tx: TransactionRequest = TransactionRequest::builder()
+    let tx: TransactionRequest = TransactionRequest::default()
         .from(address)
         .to(to)
-        .value(U256::from_dec_str("1000000000000000000").unwrap())
-        .gas(U256::from(21000))
-        .nonce(U256::from(0))
-        .build();
-
-    tx.gas_price = Some(U256::from(1));
+        .value(U256::from_str("1000000000000000000").unwrap())
+        .gas_limit(21000)
+        .gas_price(1)
+        .nonce(0);
 
     let signature = api::ethereum::sign_transaction(&vault_client, "quorum", 1, tx)
         .await
@@ -269,7 +269,9 @@ async fn test_import_private_key() {
     let wallet = api::ethereum::import_private_key(
         &vault_client,
         "quorum",
-        "0a1232595b77534d99364bfde13383accbcb40775967a7eacd15d355c96288a5",
+        "0a1232595b77534d99364bfde13383accbcb40775967a7eacd15d355c96288a5"
+            .parse()
+            .unwrap(),
     )
     .await
     .unwrap();

@@ -163,15 +163,13 @@
 //!     ).unwrap();
 //!
 //!     let address = Address::from_str("0x8d3113e29CB92F44F1762E52D2a0276509b36b82").unwrap();
-//!     let mut tx: TransactionRequest = TransactionRequest::builder()
+//!     let tx: TransactionRequest = TransactionRequest::default()
 //!         .from(address)
 //!         .to(address)
-//!         .value(U256::from_dec_str("1000000000000000000").unwrap())
-//!         .gas(U256::from(21000))
-//!         .nonce(U256::from(0))
-//!         .build();
-//!
-//!     tx.gas_price = Some(U256::from(1));
+//!         .value(U256::from_str("1000000000000000000").unwrap())
+//!         .gas_limit(21000)
+//!         .gas_price(1)
+//!         .nonce(0);
 //!
 //!     let sign_transaction = quorum_vault_client::api::ethereum::sign_transaction(&client, "quorum", 1, tx).await.unwrap();
 //!     println!("result: {:?}", sign_transaction);
@@ -326,6 +324,7 @@
 //! ```bash
 //! > signature: SignResponse { signature: "Z1ibkBIGjMLh5pSR5mFZ5NbesrM57g-FGkFr0sbIyIlI_M0BYVN_LD-Nt7x1wUo6AoLQyL0I-z7PD8MsdgmkhQ==" }
 //! ```
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 pub mod api;
 pub mod error;
@@ -334,5 +333,6 @@ pub mod error;
 extern crate derive_builder;
 
 // re-export
+pub use alloy_primitives::*;
+pub use alloy_rpc_types_eth::TransactionRequest;
 pub use vaultrs::client::{Client, VaultClient, VaultClientSettingsBuilder};
-pub use web3::types::*;
