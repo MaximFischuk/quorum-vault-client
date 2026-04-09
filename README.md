@@ -21,6 +21,7 @@ The following backends are supported:
     * Delete Key
     * Sign Data
     * Import Private Key
+    * Update Key Tags
 * ZK-SNARKs
     * Create ZK-SNARKs Account
     * Read ZK-SNARKs Account
@@ -114,7 +115,6 @@ quorum_vault_client::api::ethereum::import_private_key(
 ).await.unwrap();
 
 // v2.0
-use std::str::FromStr;
 use quorum_vault_client::B256;
 
 let private_key: B256 = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
@@ -127,7 +127,7 @@ quorum_vault_client::api::ethereum::import_private_key(
 
 ### 5. API module paths
 
-API functions are organized under submodules. Ensure you use the full path:
+API functions are now organized under explicit submodules. Update all call sites:
 
 ```rust
 // Ethereum
@@ -143,10 +143,12 @@ quorum_vault_client::api::keys::create_key(&client, "quorum", id, algorithm, tag
 quorum_vault_client::api::keys::read_key(&client, "quorum", id).await?;
 quorum_vault_client::api::keys::list_keys(&client, "quorum").await?;
 quorum_vault_client::api::keys::destroy_key(&client, "quorum", id).await?;
+quorum_vault_client::api::keys::import_key(&client, "quorum", id, algorithm, tags, private_key).await?;
+quorum_vault_client::api::keys::update_key_tags(&client, "quorum", id, tags).await?;
 quorum_vault_client::api::keys::sign(&client, "quorum", id, data).await?;
 quorum_vault_client::api::keys::sign_hash(&client, "quorum", id, hash).await?;
 
-// ZK-SNARKs (new)
+// ZK-SNARKs (new in v2.0)
 quorum_vault_client::api::zksnarks::create_zksnarks_account(&client, "quorum").await?;
 quorum_vault_client::api::zksnarks::read_zksnarks_account(&client, "quorum", id).await?;
 quorum_vault_client::api::zksnarks::list_zksnarks_accounts(&client, "quorum").await?;
@@ -158,7 +160,7 @@ quorum_vault_client::api::zksnarks::zksnarks_sign_hash(&client, "quorum", id, ha
 
 - **ZK-SNARKs support** — Full API for creating, reading, listing zk-SNARKs (EdDSA/BabyJubJub) accounts and signing data.
 - **`sign` function for Ethereum** — Sign arbitrary data with an Ethereum account.
-- **`sign_hash` functions** — Both Keys and ZK-SNARKs modules now provide `sign_hash` for signing pre-computed 32-byte digests (bypassing internal keccak256 hashing).
+- **`sign_hash` functions** — Both Keys and ZK-SNARKs modules now provide `sign_hash` for signing pre-computed 32-byte digests, bypassing internal keccak256 hashing.
 - **`update_key_tags`** — Update metadata tags on an existing key.
 
 ## Installation
@@ -212,10 +214,9 @@ async fn main() {
     ).unwrap();
 
     // By default the plugin mounts the Ethereum backend at the path "quorum"
-    let created_account = quorum_vault_client::api::create_account(&client, "quorum").await.unwrap();
+    let created_account = quorum_vault_client::api::ethereum::create_account(&client, "quorum").await.unwrap();
     println!("result: {:?}", created_account);
 }
-
 ```
 
 Result of the execution is the following:
@@ -241,10 +242,9 @@ async fn main() {
             .unwrap()
     ).unwrap();
 
-    let list_accounts = quorum_vault_client::api::list_accounts(&client, "quorum").await.unwrap();
+    let list_accounts = quorum_vault_client::api::ethereum::list_accounts(&client, "quorum").await.unwrap();
     println!("result: {:?}", list_accounts);
 }
-
 ```
 
 Result of the execution is the following:
@@ -273,10 +273,9 @@ async fn main() {
     ).unwrap();
 
     let address = Address::from_str("0x8d3113e29CB92F44F1762E52D2a0276509b36b82").unwrap();
-    let read_account = quorum_vault_client::api::read_account(&client, "quorum", account).await.unwrap();
+    let read_account = quorum_vault_client::api::ethereum::read_account(&client, "quorum", address).await.unwrap();
     println!("result: {:?}", read_account);
 }
-
 ```
 
 Result of the execution is the following:
@@ -287,7 +286,7 @@ Result of the execution is the following:
 
 **Sign Ethereum Transaction**
 
-The following example signs the Ethereum Transaction.
+The following example signs an Ethereum Transaction.
 
 ```rust
 use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder, TransactionRequest, Address, U256};
@@ -305,37 +304,31 @@ async fn main() {
     ).unwrap();
 
     let address = Address::from_str("0x8d3113e29CB92F44F1762E52D2a0276509b36b82").unwrap();
-    let mut tx: TransactionRequest = TransactionRequest::builder()
+    let tx = TransactionRequest::default()
         .from(address)
         .to(address)
-        .value(U256::from_dec_str("1000000000000000000").unwrap())
-        .gas(U256::from(21000))
-        .nonce(U256::from(0))
-        .build();
+        .value(U256::from_str("1000000000000000000").unwrap())
+        .gas_limit(21000)
+        .gas_price(1)
+        .nonce(0);
 
-    tx.gas_price = Some(U256::from(1));
-
-    let sign_transaction = quorum_vault_client::api::sign_transaction(&client, "quorum", 1, tx).await.unwrap();
+    let sign_transaction = quorum_vault_client::api::ethereum::sign_transaction(&client, "quorum", 1, tx).await.unwrap();
     println!("result: {:?}", sign_transaction);
 }
-
 ```
 
 Result of the execution is the following:
 
 ```bash
-> signature: EthereumSignTransactionResponse { signature: "0xf29001752503d05ae83874193a8d866d49fc897c1a2fcb6229a0c61e4b5663f7097817a26f4c6014bbfd24c484bad9587c9c627c6f70d020f8638a4067bb78e801" }
+> result: EthereumSignTransactionResponse { signature: "0xf29001752503d05ae83874193a8d866d49fc897c1a2fcb6229a0c61e4b5663f7097817a26f4c6014bbfd24c484bad9587c9c627c6f70d020f8638a4067bb78e801" }
 ```
 
-### Keys
+**Import Private Key**
 
-**Create Key**
-
-The following example creates a new key in the Vault.
+The following example imports an existing private key into the Vault as a new Ethereum account.
 
 ```rust
-use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
-use quorum_vault_client::api::KeyCryptoAlgorithm;
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder, B256};
 
 #[tokio::main]
 async fn main() {
@@ -348,8 +341,79 @@ async fn main() {
             .unwrap()
     ).unwrap();
 
-    let created_key = quorum_vault_client::api::create_key(&client, "quorum", "some-id", KeyCryptoAlgorithm::Secp256k1, [("tag".to_string(), "value".to_string())].into_iter().collect()).await.unwrap();
+    let private_key: B256 = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
+        .parse()
+        .unwrap();
+    let account = quorum_vault_client::api::ethereum::import_private_key(&client, "quorum", private_key).await.unwrap();
+    println!("result: {:?}", account);
+}
+```
 
+Result of the execution is the following:
+
+```bash
+> result: EthereumAccountResponse { address: 0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266, compressed_public_key: "0x...", public_key: "0x...", namespace: "" }
+```
+
+**Sign Arbitrary Data**
+
+The following example signs arbitrary data with an Ethereum account.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder, Address};
+use std::str::FromStr;
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let address = Address::from_str("0x8d3113e29CB92F44F1762E52D2a0276509b36b82").unwrap();
+    let signature = quorum_vault_client::api::ethereum::sign(&client, "quorum", address, b"some-data").await.unwrap();
+    println!("result: {:?}", signature);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: EthereumSignResponse { signature: "0x..." }
+```
+
+### Keys
+
+**Create Key**
+
+The following example creates a new key in the Vault.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+use quorum_vault_client::api::keys::KeyCryptoAlgorithm;
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let created_key = quorum_vault_client::api::keys::create_key(
+        &client,
+        "quorum",
+        "some-id",
+        KeyCryptoAlgorithm::Secp256k1,
+        [("tag".to_string(), "value".to_string())].into_iter().collect(),
+    ).await.unwrap();
     println!("result: {:?}", created_key);
 }
 ```
@@ -357,7 +421,7 @@ async fn main() {
 Result of the execution is the following:
 
 ```bash
-> result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value0"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
+> result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
 ```
 
 **Read Key**
@@ -369,16 +433,16 @@ use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
 
 #[tokio::main]
 async fn main() {
-  // Create a client
-  let client = VaultClient::new(
-    VaultClientSettingsBuilder::default()
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
             .address("https://127.0.0.1:8200")
             .token("TOKEN")
             .build()
             .unwrap()
-  ).unwrap();
+    ).unwrap();
 
-  let key = quorum_vault_client::api::read_key(&client, "quorum", "some-id").await.unwrap();
+    let key = quorum_vault_client::api::keys::read_key(&client, "quorum", "some-id").await.unwrap();
     println!("result: {:?}", key);
 }
 ```
@@ -386,7 +450,7 @@ async fn main() {
 Result of the execution is the following:
 
 ```bash
-> result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value0"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
+> result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
 ```
 
 **List Keys**
@@ -398,17 +462,17 @@ use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
 
 #[tokio::main]
 async fn main() {
-  // Create a client
-  let client = VaultClient::new(
-    VaultClientSettingsBuilder::default()
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
             .address("https://127.0.0.1:8200")
             .token("TOKEN")
             .build()
             .unwrap()
-  ).unwrap();
-  
-  let keys = quorum_vault_client::api::list_keys(&client, "quorum").await.unwrap();
-  println!("result: {:?}", keys);
+    ).unwrap();
+
+    let keys = quorum_vault_client::api::keys::list_keys(&client, "quorum").await.unwrap();
+    println!("result: {:?}", keys);
 }
 ```
 
@@ -427,39 +491,39 @@ use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
 
 #[tokio::main]
 async fn main() {
-  // Create a client
-  let client = VaultClient::new(
-    VaultClientSettingsBuilder::default()
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
             .address("https://127.0.0.1:8200")
             .token("TOKEN")
             .build()
             .unwrap()
-  ).unwrap();
+    ).unwrap();
 
-  quorum_vault_client::api::destroy_key(&client, "quorum", "some-id").await.unwrap();
+    quorum_vault_client::api::keys::destroy_key(&client, "quorum", "some-id").await.unwrap();
 }
 ```
 
-**Sign data**
+**Sign Data**
 
-The following example signs the data by key id.
+The following example signs data with a key by its id. The data is hashed with keccak256 before signing.
 
 ```rust
 use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
 
 #[tokio::main]
 async fn main() {
-  // Create a client
-  let client = VaultClient::new(
-    VaultClientSettingsBuilder::default()
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
             .address("https://127.0.0.1:8200")
             .token("TOKEN")
             .build()
             .unwrap()
-  ).unwrap();
+    ).unwrap();
 
-  let signature = quorum_vault_client::api::sign(&client, "quorum", "some-id", "some-data".as_bytes().await.unwrap();
-  println!("signature: {:?}", signature);
+    let signature = quorum_vault_client::api::keys::sign(&client, "quorum", "some-id", b"some-data").await.unwrap();
+    println!("signature: {:?}", signature);
 }
 ```
 
@@ -467,4 +531,193 @@ Result of the execution is the following:
 
 ```bash
 > signature: SignResponse { signature: "Z1ibkBIGjMLh5pSR5mFZ5NbesrM57g-FGkFr0sbIyIlI_M0BYVN_LD-Nt7x1wUo6AoLQyL0I-z7PD8MsdgmkhQ==" }
+```
+
+**Import Private Key**
+
+The following example imports an existing private key into the Vault.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+use quorum_vault_client::api::keys::KeyCryptoAlgorithm;
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let key = quorum_vault_client::api::keys::import_key(
+        &client,
+        "quorum",
+        "some-id",
+        KeyCryptoAlgorithm::Secp256k1,
+        [("tag".to_string(), "value".to_string())].into_iter().collect(),
+        "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80",
+    ).await.unwrap();
+    println!("result: {:?}", key);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
+```
+
+**Update Key Tags**
+
+The following example updates the metadata tags of an existing key.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let key = quorum_vault_client::api::keys::update_key_tags(
+        &client,
+        "quorum",
+        "some-id",
+        [("env".to_string(), "production".to_string())].into_iter().collect(),
+    ).await.unwrap();
+    println!("result: {:?}", key);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"env": "production"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 2 }
+```
+
+### ZK-SNARKs
+
+**Create ZK-SNARKs Account**
+
+The following example creates a new ZK-SNARKs (EdDSA/BabyJubJub) account in the Vault.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let account = quorum_vault_client::api::zksnarks::create_zksnarks_account(&client, "quorum").await.unwrap();
+    println!("result: {:?}", account);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: ZkSnarksAccountResponse { curve: "babyjubjub", namespace: "", public_key: "...", signing_algorithm: "eddsa" }
+```
+
+**Read ZK-SNARKs Account**
+
+The following example reads a ZK-SNARKs account by its public key, which is used as the account id.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let account = quorum_vault_client::api::zksnarks::read_zksnarks_account(&client, "quorum", "<public-key>").await.unwrap();
+    println!("result: {:?}", account);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: ZkSnarksAccountResponse { curve: "babyjubjub", namespace: "", public_key: "...", signing_algorithm: "eddsa" }
+```
+
+**List ZK-SNARKs Accounts**
+
+The following example lists all ZK-SNARKs accounts in the Vault.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let accounts = quorum_vault_client::api::zksnarks::list_zksnarks_accounts(&client, "quorum").await.unwrap();
+    println!("result: {:?}", accounts);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> result: ZkSnarksAccountsResponse { keys: ["<public-key-1>", "<public-key-2>"] }
+```
+
+**Sign Data**
+
+The following example signs data with a ZK-SNARKs account. The data is hashed with keccak256 before signing.
+
+```rust
+use quorum_vault_client::{Client, VaultClient, VaultClientSettingsBuilder};
+
+#[tokio::main]
+async fn main() {
+    // Create a client
+    let client = VaultClient::new(
+        VaultClientSettingsBuilder::default()
+            .address("https://127.0.0.1:8200")
+            .token("TOKEN")
+            .build()
+            .unwrap()
+    ).unwrap();
+
+    let signature = quorum_vault_client::api::zksnarks::zksnarks_sign(&client, "quorum", "<public-key>", b"some-data").await.unwrap();
+    println!("signature: {:?}", signature);
+}
+```
+
+Result of the execution is the following:
+
+```bash
+> signature: ZkSnarksSignResponse { signature: "..." }
 ```
