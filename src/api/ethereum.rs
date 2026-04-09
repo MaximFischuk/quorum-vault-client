@@ -86,7 +86,7 @@ pub async fn sign_transaction(
         .gas_limit(transaction.gas.unwrap_or(21000))
         .gas_price(transaction.gas_price.unwrap_or_default().to_string())
         .nonce(transaction.nonce.unwrap_or_default())
-        .data(transaction.input.input.unwrap_or_default())
+        .data(transaction.input.into_input().unwrap_or_default())
         .to(to)
         .build()
         .unwrap();

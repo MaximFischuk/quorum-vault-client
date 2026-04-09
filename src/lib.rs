@@ -24,7 +24,7 @@
 //! Add the following to your `Cargo.toml`:
 //! ```toml
 //! [dependencies]
-//! quorum-vault-client = "0.1.0"
+//! quorum-vault-client = "2.0.0"
 //! ```
 //!
 //! ## Usage
@@ -180,7 +180,7 @@
 //! Result of the execution is the following:
 //!
 //! ```bash
-//! > signature: EthereumSignTransactionResponse { signature: "0xf29001752503d05ae83874193a8d866d49fc897c1a2fcb6229a0c61e4b5663f7097817a26f4c6014bbfd24c484bad9587c9c627c6f70d020f8638a4067bb78e801" }
+//! > result: EthereumSignTransactionResponse { signature: "0xf29001752503d05ae83874193a8d866d49fc897c1a2fcb6229a0c61e4b5663f7097817a26f4c6014bbfd24c484bad9587c9c627c6f70d020f8638a4067bb78e801" }
 //! ```
 //!
 //! ### Keys
@@ -213,7 +213,7 @@
 //! Result of the execution is the following:
 //!
 //! ```bash
-//! > result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value0"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
+//! > result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
 //! ```
 //!
 //! **Read Key**
@@ -225,16 +225,16 @@
 //!
 //! #[tokio::main]
 //! async fn main() {
-//!   // Create a client
-//!   let client = VaultClient::new(
-//!     VaultClientSettingsBuilder::default()
+//!     // Create a client
+//!     let client = VaultClient::new(
+//!         VaultClientSettingsBuilder::default()
 //!             .address("https://127.0.0.1:8200")
 //!             .token("TOKEN")
 //!             .build()
 //!             .unwrap()
-//!   ).unwrap();
+//!     ).unwrap();
 //!
-//!   let key = quorum_vault_client::api::keys::read_key(&client, "quorum", "some-id").await.unwrap();
+//!     let key = quorum_vault_client::api::keys::read_key(&client, "quorum", "some-id").await.unwrap();
 //!     println!("result: {:?}", key);
 //! }
 //! ```
@@ -242,7 +242,7 @@
 //! Result of the execution is the following:
 //!
 //! ```bash
-//! > result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value0"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
+//! > result: KeyResponse { created_at: "2023-01-30T09:08:22.217224856Z", curve: "secp256k1", id: "some-id", namespace: "", public_key: "BIwm5UiSGTiXVRlB_rS7qYSzQ6XZbaWfUOJKVicU85q-N7zuAak2JQfAHUs2Sm2WAA7YyWdN7_4UFJFggEa6AKw=", signing_algorithm: "ecdsa", tags: {"tag": "value"}, updated_at: "2023-01-30T09:08:22.217224856Z", version: 1 }
 //! ```
 //!
 //! **List Keys**
@@ -254,17 +254,17 @@
 //!
 //! #[tokio::main]
 //! async fn main() {
-//!   // Create a client
-//!   let client = VaultClient::new(
-//!     VaultClientSettingsBuilder::default()
+//!     // Create a client
+//!     let client = VaultClient::new(
+//!         VaultClientSettingsBuilder::default()
 //!             .address("https://127.0.0.1:8200")
 //!             .token("TOKEN")
 //!             .build()
 //!             .unwrap()
-//!   ).unwrap();
+//!     ).unwrap();
 //!
-//!   let keys = quorum_vault_client::api::keys::list_keys(&client, "quorum").await.unwrap();
-//!   println!("result: {:?}", keys);
+//!     let keys = quorum_vault_client::api::keys::list_keys(&client, "quorum").await.unwrap();
+//!     println!("result: {:?}", keys);
 //! }
 //! ```
 //!
@@ -283,16 +283,16 @@
 //!
 //! #[tokio::main]
 //! async fn main() {
-//!   // Create a client
-//!   let client = VaultClient::new(
-//!     VaultClientSettingsBuilder::default()
+//!     // Create a client
+//!     let client = VaultClient::new(
+//!         VaultClientSettingsBuilder::default()
 //!             .address("https://127.0.0.1:8200")
 //!             .token("TOKEN")
 //!             .build()
 //!             .unwrap()
-//!   ).unwrap();
+//!     ).unwrap();
 //!
-//!   quorum_vault_client::api::keys::destroy_key(&client, "quorum", "some-id").await.unwrap();
+//!     quorum_vault_client::api::keys::destroy_key(&client, "quorum", "some-id").await.unwrap();
 //! }
 //! ```
 //!
@@ -305,17 +305,17 @@
 //!
 //! #[tokio::main]
 //! async fn main() {
-//!   // Create a client
-//!   let client = VaultClient::new(
-//!     VaultClientSettingsBuilder::default()
+//!     // Create a client
+//!     let client = VaultClient::new(
+//!         VaultClientSettingsBuilder::default()
 //!             .address("https://127.0.0.1:8200")
 //!             .token("TOKEN")
 //!             .build()
 //!             .unwrap()
-//!   ).unwrap();
+//!     ).unwrap();
 //!
-//!   let signature = quorum_vault_client::api::keys::sign(&client, "quorum", "some-id", "some-data".as_bytes()).await.unwrap();
-//!   println!("signature: {:?}", signature);
+//!     let signature = quorum_vault_client::api::keys::sign(&client, "quorum", "some-id", "some-data".as_bytes()).await.unwrap();
+//!     println!("signature: {:?}", signature);
 //! }
 //! ```
 //!
