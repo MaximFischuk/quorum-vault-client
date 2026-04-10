@@ -1,6 +1,6 @@
+use alloy_primitives::keccak256;
 use quorum_vault_client::api;
 use vaultrs::client::{VaultClient, VaultClientSettingsBuilder};
-use web3::signing::keccak256;
 use wiremock::matchers::{body_json, method, path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
@@ -242,7 +242,7 @@ async fn test_sign_hash() {
         &vault_client,
         "quorum",
         "0x7e8249b895434a1b02aade22033b887620ab5e756aa106d415ff33ace9048626",
-        hash,
+        hash.0,
     )
     .await
     .unwrap();

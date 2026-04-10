@@ -6,7 +6,7 @@ use crate::api::zksnarks::responses::{
     ZkSnarksAccountResponse, ZkSnarksAccountsResponse, ZkSnarksSignResponse,
 };
 use crate::error::ClientError;
-use crate::H256;
+use alloy_primitives::{B256, keccak256};
 use vaultrs::client::Client;
 
 pub mod requests;
@@ -67,9 +67,8 @@ pub async fn zksnarks_sign(
     id: &str,
     data: &[u8],
 ) -> Result<ZkSnarksSignResponse, ClientError> {
-    let hash = web3::signing::keccak256(data);
-    let hex = H256::from(hash);
-    let encoded = format!("{:?}", hex);
+    let hash = keccak256(data);
+    let encoded = format!("0x{:x}", hash);
     let request = ZkSnarksSignRequest::builder()
         .mount(mount)
         .id(id)
@@ -90,8 +89,8 @@ pub async fn zksnarks_sign_hash(
     id: &str,
     data: [u8; 32],
 ) -> Result<ZkSnarksSignResponse, ClientError> {
-    let hex = H256::from(data);
-    let encoded = format!("{:?}", hex);
+    let hex = B256::from(data);
+    let encoded = format!("0x{:x}", hex);
     let request = ZkSnarksSignRequest::builder()
         .mount(mount)
         .id(id)

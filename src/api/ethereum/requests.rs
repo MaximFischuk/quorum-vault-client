@@ -2,8 +2,8 @@ use crate::api::ethereum::responses::{
     EthereumAccountResponse, EthereumAccountsResponse, EthereumSignResponse,
     EthereumSignTransactionResponse,
 };
+use alloy_primitives::Bytes;
 use rustify_derive::Endpoint;
-use web3::types::Bytes;
 
 /// ## Create Ethereum Account
 /// This endpoint creates a new Ethereum account.
@@ -97,7 +97,7 @@ pub struct SignEthereumTransactionRequest {
     #[endpoint(body)]
     pub nonce: u64,
     #[endpoint(body)]
-    pub to: String,
+    pub to: Option<String>,
 }
 
 /// ## Import Private Key
