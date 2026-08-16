@@ -1,129 +1,58 @@
-use crate::api::ethereum::requests::{
-    CreateEthereumAccountRequest, ImportPrivateKeyRequest, ListEthereumAccountsRequest,
-    ReadEthereumAccountRequest, SignEthereumTransactionRequest,
-};
-use crate::api::ethereum::responses::{
-    EthereumAccountResponse, EthereumAccountsResponse, EthereumSignTransactionResponse,
-};
-
-use alloy_primitives::{Address, B256, TxKind};
-use alloy_rpc_types_eth::TransactionRequest;
 use vaultrs::client::Client;
 use vaultrs::error::ClientError;
 
-use self::requests::EthereumSignRequest;
-use self::responses::EthereumSignResponse;
+use self::requests::{
+    SignEthereumTransactionRequest, SignTypedDataRequest, SignUserOperationRequest,
+};
+use super::responses::SignatureResponse;
 
 pub mod requests;
-pub mod responses;
 
-/// Create a new Ethereum account.
-///
-/// See [CreateEthereumAccountRequest]
-pub async fn create_account(
-    client: &impl Client,
-    mount: &str,
-) -> Result<EthereumAccountResponse, ClientError> {
-    let request = CreateEthereumAccountRequest::builder()
-        .mount(mount)
-        .build()
-        .unwrap();
-    vaultrs::api::exec_with_result(client, request).await
-}
+pub use requests::{EthereumTransaction, TypedData, TypedDataField, UserOperation};
 
-/// List Ethereum accounts.
-///
-/// See [ListEthereumAccountsRequest]
-pub async fn list_accounts(
-    client: &impl Client,
-    mount: &str,
-) -> Result<EthereumAccountsResponse, ClientError> {
-    let request = ListEthereumAccountsRequest::builder()
-        .mount(mount)
-        .build()
-        .unwrap();
-    vaultrs::api::exec_with_result(client, request).await
-}
-
-/// Read an Ethereum account.
-///
-/// See [ReadEthereumAccountRequest]
-pub async fn read_account(
-    client: &impl Client,
-    mount: &str,
-    address: Address,
-) -> Result<EthereumAccountResponse, ClientError> {
-    let checksummed = address.to_checksum(None);
-    let request = ReadEthereumAccountRequest::builder()
-        .mount(mount)
-        .address(checksummed)
-        .build()
-        .unwrap();
-    vaultrs::api::exec_with_result(client, request).await
-}
-
-/// Sign an Ethereum transaction.
-///
-/// See [SignEthereumTransactionRequest]
+/// Signs an Ethereum transaction.
 pub async fn sign_transaction(
     client: &impl Client,
-    mount: &str,
-    chain_id: u64,
-    transaction: TransactionRequest,
-) -> Result<EthereumSignTransactionResponse, ClientError> {
-    let checksummed = transaction.from.unwrap_or_default().to_checksum(None);
-    let to = if let Some(TxKind::Call(recipient)) = transaction.to {
-        Some(format!("0x{:x}", recipient))
-    } else {
-        // Contract creation transactions have no recipient address
-        None
-    };
+    id: &str,
+    transaction: EthereumTransaction,
+) -> Result<SignatureResponse, ClientError> {
     let request = SignEthereumTransactionRequest::builder()
-        .mount(mount)
-        .address(checksummed)
-        .chain_id(chain_id.to_string())
-        .amount(transaction.value.unwrap_or_default().to_string())
-        .gas_limit(transaction.gas.unwrap_or(21000))
-        .gas_price(transaction.gas_price.unwrap_or_default().to_string())
-        .nonce(transaction.nonce.unwrap_or_default())
-        .data(transaction.input.into_input().unwrap_or_default())
-        .to(to)
-        .build()
-        .unwrap();
-
-    vaultrs::api::exec_with_result(client, request).await
-}
-
-/// Import a Private Key
-/// See [ImportPrivateKeyRequest]
-pub async fn import_private_key(
-    client: &impl Client,
-    mount: &str,
-    private_key: B256,
-) -> Result<EthereumAccountResponse, ClientError> {
-    // The API expects the private key as a hex string without the "0x" prefix
-    let private_key_hex = format!("{:x}", private_key);
-    let request = ImportPrivateKeyRequest::builder()
-        .mount(mount)
-        .private_key(private_key_hex)
+        .id(id)
+        .transaction(transaction)
         .build()
         .unwrap();
     vaultrs::api::exec_with_result(client, request).await
 }
 
-/// Sign a message with an Ethereum account.
-/// See [SignEthereumRequest]
-pub async fn sign(
+/// Signs EIP-712 typed data.
+pub async fn sign_typed_data(
     client: &impl Client,
-    mount: &str,
-    address: Address,
-    data: &[u8],
-) -> Result<EthereumSignResponse, ClientError> {
-    let checksummed = address.to_checksum(None);
-    let request = EthereumSignRequest::builder()
-        .mount(mount)
-        .address(checksummed)
-        .data(format!("0x{}", hex::encode(data)))
+    id: &str,
+    typed_data: TypedData,
+) -> Result<SignatureResponse, ClientError> {
+    let request = SignTypedDataRequest::builder()
+        .id(id)
+        .typed_data(typed_data)
+        .build()
+        .unwrap();
+    vaultrs::api::exec_with_result(client, request).await
+}
+
+/// Signs an ERC-4337 user operation.
+pub async fn sign_user_operation(
+    client: &impl Client,
+    id: &str,
+    user_operation: UserOperation,
+    entry_point: &str,
+    entry_point_version: &str,
+    chain_id: &str,
+) -> Result<SignatureResponse, ClientError> {
+    let request = SignUserOperationRequest::builder()
+        .id(id)
+        .user_operation(user_operation)
+        .entry_point(entry_point)
+        .entry_point_version(entry_point_version)
+        .chain_id(chain_id)
         .build()
         .unwrap();
     vaultrs::api::exec_with_result(client, request).await

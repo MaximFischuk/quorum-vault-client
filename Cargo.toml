@@ -12,17 +12,11 @@ license = "MIT"
 [dependencies]
 vaultrs = "0.8"
 derive_builder = "0.20.2"
-thiserror = "2.0.18"
 serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 rustify = "0.7.0"
 rustify_derive = "0.5.5"
-base64 = "0.22.1"
-hex = "0.4.3"
-alloy-primitives = { version = "1", features = ["serde"] }
-alloy-rpc-types-eth = { version = "1", features = ["serde"] }
 
 [dev-dependencies]
 tokio = { version = "1.51.0", features = ["full"] }
 wiremock = "0.6.5"
-serde_json = "1.0.149"
-secp256k1 = "0.31.1"

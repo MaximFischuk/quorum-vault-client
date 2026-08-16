@@ -1,3 +1,1 @@
-mod ethereum;
-mod keys;
-mod zksnarks;
+mod signer;
