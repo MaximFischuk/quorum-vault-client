@@ -4,7 +4,7 @@ use derive_builder::Builder;
 use rustify_derive::Endpoint;
 use serde::Serialize;
 
-use crate::api::responses::SignatureResponse;
+use crate::api::responses::{SignatureResponse, SignedEthereumTransactionResponse};
 
 /// Ethereum transaction fields accepted by signer plugin.
 #[derive(Clone, Debug, Serialize)]
@@ -83,7 +83,7 @@ pub struct TypedData {
 #[endpoint(
     path = "signer/keys/{self.id}/sign/ethereum/transaction",
     method = "POST",
-    response = "SignatureResponse",
+    response = "SignedEthereumTransactionResponse",
     builder = "true"
 )]
 #[builder(setter(into))]

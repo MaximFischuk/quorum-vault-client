@@ -140,9 +140,33 @@ async fn lists_reads_and_deletes_signer_keys() {
 }
 
 #[tokio::test]
+async fn lists_empty_signer_keys_when_vault_returns_null() {
+    let mock = MockServer::start().await;
+    Mock::given(method("GET"))
+        .and(path("/v1/signer/keys"))
+        .respond_with(
+            ResponseTemplate::new(200).set_body_json(response(serde_json::json!({"keys": null}))),
+        )
+        .mount(&mock)
+        .await;
+
+    assert!(
+        api::list_keys(&client(&mock).await)
+            .await
+            .unwrap()
+            .keys
+            .is_empty()
+    );
+}
+
+#[tokio::test]
 async fn signs_batch_and_ethereum_payloads() {
     let mock = MockServer::start().await;
     let single_signature = response(serde_json::json!({"signature": "signature"}));
+    let transaction_signature = response(serde_json::json!({
+        "signed_transaction": "0xsigned",
+        "transaction_hash": "0xhash"
+    }));
     Mock::given(method("POST"))
         .and(path("/v1/signer/keys/secp256k1/sign/batch"))
         .and(body_json(serde_json::json!({"hashes": ["a", "b"]})))
@@ -165,13 +189,16 @@ async fn signs_batch_and_ethereum_payloads() {
             "maxFeePerGas": "0x6fc23ac00",
             "chainId": "0x1"
         })))
-        .respond_with(ResponseTemplate::new(200).set_body_json(single_signature.clone()))
+        .respond_with(ResponseTemplate::new(200).set_body_json(transaction_signature))
         .mount(&mock)
         .await;
     Mock::given(method("POST"))
         .and(path("/v1/signer/keys/secp256k1/sign/ethereum/typed-data"))
         .and(body_json(serde_json::json!({
-            "types": {"Mail": [{"name": "contents", "type": "string"}]},
+            "types": {
+                "EIP712Domain": [{"name": "name", "type": "string"}],
+                "Mail": [{"name": "contents", "type": "string"}]
+            },
             "primaryType": "Mail",
             "domain": {"name": "Ether Mail"},
             "message": {"contents": "Hello"}
@@ -206,34 +233,47 @@ async fn signs_batch_and_ethereum_payloads() {
             .signatures,
         ["a", "b"]
     );
-    ethereum::sign_transaction(
-        &vault,
-        "secp256k1",
-        EthereumTransaction {
-            transaction_type: "0x2".into(),
-            nonce: "0x0".into(),
-            to: Some("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045".into()),
-            value: "0x0".into(),
-            gas: "0x5208".into(),
-            gas_price: None,
-            max_priority_fee_per_gas: Some("0x3b9aca00".into()),
-            max_fee_per_gas: Some("0x6fc23ac00".into()),
-            chain_id: "0x1".into(),
-        },
-    )
-    .await
-    .unwrap();
+    assert_eq!(
+        ethereum::sign_transaction(
+            &vault,
+            "secp256k1",
+            EthereumTransaction {
+                transaction_type: "0x2".into(),
+                nonce: "0x0".into(),
+                to: Some("0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045".into()),
+                value: "0x0".into(),
+                gas: "0x5208".into(),
+                gas_price: None,
+                max_priority_fee_per_gas: Some("0x3b9aca00".into()),
+                max_fee_per_gas: Some("0x6fc23ac00".into()),
+                chain_id: "0x1".into(),
+            },
+        )
+        .await
+        .unwrap()
+        .transaction_hash,
+        "0xhash"
+    );
     ethereum::sign_typed_data(
         &vault,
         "secp256k1",
         TypedData {
-            types: HashMap::from([(
-                "Mail".into(),
-                vec![TypedDataField {
-                    name: "contents".into(),
-                    field_type: "string".into(),
-                }],
-            )]),
+            types: HashMap::from([
+                (
+                    "EIP712Domain".into(),
+                    vec![TypedDataField {
+                        name: "name".into(),
+                        field_type: "string".into(),
+                    }],
+                ),
+                (
+                    "Mail".into(),
+                    vec![TypedDataField {
+                        name: "contents".into(),
+                        field_type: "string".into(),
+                    }],
+                ),
+            ]),
             primary_type: "Mail".into(),
             domain: serde_json::json!({"name": "Ether Mail"}),
             message: serde_json::json!({"contents": "Hello"}),

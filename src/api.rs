@@ -10,4 +10,7 @@ pub use ethereum::{
 };
 pub use hash::{create_key, delete_key, list_keys, read_key, sign_batch, sign_hash, sign_message};
 pub use requests::{HashFunction, KeyCurve};
-pub use responses::{KeyResponse, KeysResponse, SignatureResponse, SignaturesResponse};
+pub use responses::{
+    KeyResponse, KeysResponse, SignatureResponse, SignaturesResponse,
+    SignedEthereumTransactionResponse,
+};

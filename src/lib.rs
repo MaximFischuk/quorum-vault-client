@@ -6,7 +6,7 @@
 //! use std::collections::HashMap;
 //!
 //! use quorum_vault_client::{
-//!     api::signer::{self, KeyCurve},
+//!     api::{self, KeyCurve},
 //!     VaultClient, VaultClientSettingsBuilder,
 //! };
 //!
@@ -18,7 +18,7 @@
 //!         .build()?,
 //! )?;
 //!
-//! let key = signer::create_key(
+//! let key = api::create_key(
 //!     &client,
 //!     "secp256k1",
 //!     KeyCurve::Secp256k1,

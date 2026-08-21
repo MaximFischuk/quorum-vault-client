@@ -4,7 +4,7 @@ use vaultrs::error::ClientError;
 use self::requests::{
     SignEthereumTransactionRequest, SignTypedDataRequest, SignUserOperationRequest,
 };
-use super::responses::SignatureResponse;
+use super::responses::{SignatureResponse, SignedEthereumTransactionResponse};
 
 pub mod requests;
 
@@ -15,7 +15,7 @@ pub async fn sign_transaction(
     client: &impl Client,
     id: &str,
     transaction: EthereumTransaction,
-) -> Result<SignatureResponse, ClientError> {
+) -> Result<SignedEthereumTransactionResponse, ClientError> {
     let request = SignEthereumTransactionRequest::builder()
         .id(id)
         .transaction(transaction)
