@@ -13,10 +13,12 @@ pub use requests::{EthereumTransaction, TypedData, TypedDataField, UserOperation
 /// Signs an Ethereum transaction.
 pub async fn sign_transaction(
     client: &impl Client,
+    mount: &str,
     id: &str,
     transaction: EthereumTransaction,
 ) -> Result<SignedEthereumTransactionResponse, ClientError> {
     let request = SignEthereumTransactionRequest::builder()
+        .mount(mount)
         .id(id)
         .transaction(transaction)
         .build()
@@ -27,10 +29,12 @@ pub async fn sign_transaction(
 /// Signs EIP-712 typed data.
 pub async fn sign_typed_data(
     client: &impl Client,
+    mount: &str,
     id: &str,
     typed_data: TypedData,
 ) -> Result<SignatureResponse, ClientError> {
     let request = SignTypedDataRequest::builder()
+        .mount(mount)
         .id(id)
         .typed_data(typed_data)
         .build()
@@ -41,6 +45,7 @@ pub async fn sign_typed_data(
 /// Signs an ERC-4337 user operation.
 pub async fn sign_user_operation(
     client: &impl Client,
+    mount: &str,
     id: &str,
     user_operation: UserOperation,
     entry_point: &str,
@@ -48,6 +53,7 @@ pub async fn sign_user_operation(
     chain_id: &str,
 ) -> Result<SignatureResponse, ClientError> {
     let request = SignUserOperationRequest::builder()
+        .mount(mount)
         .id(id)
         .user_operation(user_operation)
         .entry_point(entry_point)

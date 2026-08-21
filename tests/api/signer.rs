@@ -33,10 +33,10 @@ async fn client(mock: &MockServer) -> VaultClient {
 }
 
 #[tokio::test]
-async fn creates_key_at_signer_route() {
+async fn creates_key_at_configured_mount_route() {
     let mock = MockServer::start().await;
     Mock::given(method("POST"))
-        .and(path("/v1/signer/keys"))
+        .and(path("/v1/custom-signer/keys"))
         .and(body_json(serde_json::json!({
             "id": "secp256k1",
             "curve": "secp256k1",
@@ -55,6 +55,7 @@ async fn creates_key_at_signer_route() {
 
     let key = api::create_key(
         &client(&mock).await,
+        "custom-signer",
         "secp256k1",
         KeyCurve::Secp256k1,
         HashMap::from([(String::from("owner"), String::from("Alice"))]),
@@ -87,17 +88,23 @@ async fn signs_hash_and_message_at_signer_routes() {
 
     let vault = client(&mock).await;
     assert_eq!(
-        api::sign_hash(&vault, "secp256k1", "abc")
+        api::sign_hash(&vault, "signer", "secp256k1", "abc")
             .await
             .unwrap()
             .signature,
         "signature"
     );
     assert_eq!(
-        api::sign_message(&vault, "secp256k1", "68656c6c6f", HashFunction::Sha3_256)
-            .await
-            .unwrap()
-            .signature,
+        api::sign_message(
+            &vault,
+            "signer",
+            "secp256k1",
+            "68656c6c6f",
+            HashFunction::Sha3_256,
+        )
+        .await
+        .unwrap()
+        .signature,
         "signature"
     );
 }
@@ -131,12 +138,20 @@ async fn lists_reads_and_deletes_signer_keys() {
         .await;
 
     let vault = client(&mock).await;
-    assert_eq!(api::list_keys(&vault).await.unwrap().keys, ["secp256k1"]);
     assert_eq!(
-        api::read_key(&vault, "secp256k1").await.unwrap().id,
+        api::list_keys(&vault, "signer").await.unwrap().keys,
+        ["secp256k1"]
+    );
+    assert_eq!(
+        api::read_key(&vault, "signer", "secp256k1")
+            .await
+            .unwrap()
+            .id,
         "secp256k1"
     );
-    api::delete_key(&vault, "secp256k1").await.unwrap();
+    api::delete_key(&vault, "signer", "secp256k1")
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
@@ -151,7 +166,7 @@ async fn lists_empty_signer_keys_when_vault_returns_null() {
         .await;
 
     assert!(
-        api::list_keys(&client(&mock).await)
+        api::list_keys(&client(&mock).await, "signer")
             .await
             .unwrap()
             .keys
@@ -227,7 +242,7 @@ async fn signs_batch_and_ethereum_payloads() {
 
     let vault = client(&mock).await;
     assert_eq!(
-        api::sign_batch(&vault, "secp256k1", vec!["a".into(), "b".into()])
+        api::sign_batch(&vault, "signer", "secp256k1", vec!["a".into(), "b".into()],)
             .await
             .unwrap()
             .signatures,
@@ -236,6 +251,7 @@ async fn signs_batch_and_ethereum_payloads() {
     assert_eq!(
         ethereum::sign_transaction(
             &vault,
+            "signer",
             "secp256k1",
             EthereumTransaction {
                 transaction_type: "0x2".into(),
@@ -256,6 +272,7 @@ async fn signs_batch_and_ethereum_payloads() {
     );
     ethereum::sign_typed_data(
         &vault,
+        "signer",
         "secp256k1",
         TypedData {
             types: HashMap::from([
@@ -283,6 +300,7 @@ async fn signs_batch_and_ethereum_payloads() {
     .unwrap();
     ethereum::sign_user_operation(
         &vault,
+        "signer",
         "secp256k1",
         UserOperation {
             sender: "0x1".into(),

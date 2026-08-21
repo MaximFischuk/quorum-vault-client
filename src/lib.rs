@@ -18,8 +18,10 @@
 //!         .build()?,
 //! )?;
 //!
+//! let mount = "signer";
 //! let key = api::create_key(
 //!     &client,
+//!     mount,
 //!     "secp256k1",
 //!     KeyCurve::Secp256k1,
 //!     HashMap::from([(String::from("owner"), String::from("Alice"))]),

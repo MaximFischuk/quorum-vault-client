@@ -81,13 +81,15 @@ pub struct TypedData {
 
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
-    path = "signer/keys/{self.id}/sign/ethereum/transaction",
+    path = "{self.mount}/keys/{self.id}/sign/ethereum/transaction",
     method = "POST",
     response = "SignedEthereumTransactionResponse",
     builder = "true"
 )]
 #[builder(setter(into))]
 pub struct SignEthereumTransactionRequest {
+    #[endpoint(skip)]
+    pub mount: String,
     #[endpoint(skip)]
     pub id: String,
     #[endpoint(body)]
@@ -97,13 +99,15 @@ pub struct SignEthereumTransactionRequest {
 
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
-    path = "signer/keys/{self.id}/sign/ethereum/typed-data",
+    path = "{self.mount}/keys/{self.id}/sign/ethereum/typed-data",
     method = "POST",
     response = "SignatureResponse",
     builder = "true"
 )]
 #[builder(setter(into))]
 pub struct SignTypedDataRequest {
+    #[endpoint(skip)]
+    pub mount: String,
     #[endpoint(skip)]
     pub id: String,
     #[endpoint(body)]
@@ -113,13 +117,15 @@ pub struct SignTypedDataRequest {
 
 #[derive(Builder, Debug, Endpoint, Serialize)]
 #[endpoint(
-    path = "signer/keys/{self.id}/sign/ethereum/user-operation",
+    path = "{self.mount}/keys/{self.id}/sign/ethereum/user-operation",
     method = "POST",
     response = "SignatureResponse",
     builder = "true"
 )]
 #[builder(setter(into))]
 pub struct SignUserOperationRequest {
+    #[endpoint(skip)]
+    pub mount: String,
     #[endpoint(skip)]
     pub id: String,
     #[serde(rename = "userOperation")]

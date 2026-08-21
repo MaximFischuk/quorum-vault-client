@@ -30,25 +30,30 @@ pub enum HashFunction {
 
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-    path = "signer/keys",
+    path = "{self.mount}/keys",
     method = "POST",
     response = "KeyResponse",
     builder = "true"
 )]
 #[builder(setter(into))]
 pub struct CreateKeyRequest {
+    #[endpoint(skip)]
+    pub mount: String,
     pub id: String,
     pub curve: KeyCurve,
     pub metadata: HashMap<String, String>,
 }
 
 #[derive(Debug, Endpoint)]
-#[endpoint(path = "signer/keys", method = "GET", response = "KeysResponse")]
-pub struct ListKeysRequest;
+#[endpoint(path = "{self.mount}/keys", method = "GET", response = "KeysResponse")]
+pub struct ListKeysRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+}
 
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-    path = "signer/keys/{self.id}",
+    path = "{self.mount}/keys/{self.id}",
     method = "GET",
     response = "KeyResponse",
     builder = "true"
@@ -56,20 +61,28 @@ pub struct ListKeysRequest;
 #[builder(setter(into))]
 pub struct ReadKeyRequest {
     #[endpoint(skip)]
-    pub id: String,
-}
-
-#[derive(Builder, Debug, Endpoint)]
-#[endpoint(path = "signer/keys/{self.id}", method = "DELETE", builder = "true")]
-#[builder(setter(into))]
-pub struct DeleteKeyRequest {
+    pub mount: String,
     #[endpoint(skip)]
     pub id: String,
 }
 
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-    path = "signer/keys/{self.id}/sign/hash",
+    path = "{self.mount}/keys/{self.id}",
+    method = "DELETE",
+    builder = "true"
+)]
+#[builder(setter(into))]
+pub struct DeleteKeyRequest {
+    #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
+    pub id: String,
+}
+
+#[derive(Builder, Debug, Endpoint)]
+#[endpoint(
+    path = "{self.mount}/keys/{self.id}/sign/hash",
     method = "POST",
     response = "SignatureResponse",
     builder = "true"
@@ -77,13 +90,15 @@ pub struct DeleteKeyRequest {
 #[builder(setter(into))]
 pub struct SignHashRequest {
     #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
     pub id: String,
     pub hash: String,
 }
 
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-    path = "signer/keys/{self.id}/sign/batch",
+    path = "{self.mount}/keys/{self.id}/sign/batch",
     method = "POST",
     response = "SignaturesResponse",
     builder = "true"
@@ -91,19 +106,23 @@ pub struct SignHashRequest {
 #[builder(setter(into))]
 pub struct SignBatchRequest {
     #[endpoint(skip)]
+    pub mount: String,
+    #[endpoint(skip)]
     pub id: String,
     pub hashes: Vec<String>,
 }
 
 #[derive(Builder, Debug, Endpoint)]
 #[endpoint(
-    path = "signer/keys/{self.id}/sign/message",
+    path = "{self.mount}/keys/{self.id}/sign/message",
     method = "POST",
     response = "SignatureResponse",
     builder = "true"
 )]
 #[builder(setter(into))]
 pub struct SignMessageRequest {
+    #[endpoint(skip)]
+    pub mount: String,
     #[endpoint(skip)]
     pub id: String,
     pub message: String,

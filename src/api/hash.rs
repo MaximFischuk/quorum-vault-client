@@ -14,11 +14,13 @@ use crate::api::{
 /// Creates a signer key.
 pub async fn create_key(
     client: &impl Client,
+    mount: &str,
     id: &str,
     curve: KeyCurve,
     metadata: HashMap<String, String>,
 ) -> Result<KeyResponse, ClientError> {
     let request = CreateKeyRequest::builder()
+        .mount(mount)
         .id(id)
         .curve(curve)
         .metadata(metadata)
@@ -28,29 +30,49 @@ pub async fn create_key(
 }
 
 /// Lists signer keys.
-pub async fn list_keys(client: &impl Client) -> Result<KeysResponse, ClientError> {
-    vaultrs::api::exec_with_result(client, ListKeysRequest).await
+pub async fn list_keys(client: &impl Client, mount: &str) -> Result<KeysResponse, ClientError> {
+    vaultrs::api::exec_with_result(
+        client,
+        ListKeysRequest {
+            mount: mount.into(),
+        },
+    )
+    .await
 }
 
 /// Reads a signer key.
-pub async fn read_key(client: &impl Client, id: &str) -> Result<KeyResponse, ClientError> {
-    let request = ReadKeyRequest::builder().id(id).build().unwrap();
+pub async fn read_key(
+    client: &impl Client,
+    mount: &str,
+    id: &str,
+) -> Result<KeyResponse, ClientError> {
+    let request = ReadKeyRequest::builder()
+        .mount(mount)
+        .id(id)
+        .build()
+        .unwrap();
     vaultrs::api::exec_with_result(client, request).await
 }
 
 /// Deletes a signer key.
-pub async fn delete_key(client: &impl Client, id: &str) -> Result<(), ClientError> {
-    let request = DeleteKeyRequest::builder().id(id).build().unwrap();
+pub async fn delete_key(client: &impl Client, mount: &str, id: &str) -> Result<(), ClientError> {
+    let request = DeleteKeyRequest::builder()
+        .mount(mount)
+        .id(id)
+        .build()
+        .unwrap();
     vaultrs::api::exec_with_empty_result(client, request).await
 }
 
 /// Signs a 32-byte hash encoded as hexadecimal.
 pub async fn sign_hash(
     client: &impl Client,
+    mount: &str,
     id: &str,
     hash: &str,
 ) -> Result<SignatureResponse, ClientError> {
     let request = SignHashRequest::builder()
+        .mount(mount)
         .id(id)
         .hash(hash)
         .build()
@@ -61,10 +83,12 @@ pub async fn sign_hash(
 /// Signs multiple hexadecimal hashes.
 pub async fn sign_batch(
     client: &impl Client,
+    mount: &str,
     id: &str,
     hashes: Vec<String>,
 ) -> Result<SignaturesResponse, ClientError> {
     let request = SignBatchRequest::builder()
+        .mount(mount)
         .id(id)
         .hashes(hashes)
         .build()
@@ -75,11 +99,13 @@ pub async fn sign_batch(
 /// Hashes and signs a hexadecimal message.
 pub async fn sign_message(
     client: &impl Client,
+    mount: &str,
     id: &str,
     message: &str,
     hash_function: HashFunction,
 ) -> Result<SignatureResponse, ClientError> {
     let request = SignMessageRequest::builder()
+        .mount(mount)
         .id(id)
         .message(message)
         .hash_function(hash_function)

@@ -9,6 +9,7 @@ use quorum_vault_client::{
 
 const VAULT_ADDRESS: &str = "http://127.0.0.1:8200";
 const VAULT_TOKEN: &str = "DevVaultToken";
+const MOUNT: &str = "signer";
 const KEY_ID: &str = "quorum-client-example-secp256k1";
 
 #[tokio::main]
@@ -20,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .build()?,
     )?;
 
-    let created_key = !api::list_keys(&client)
+    let created_key = !api::list_keys(&client, MOUNT)
         .await?
         .keys
         .iter()
@@ -28,37 +29,52 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let key = if created_key {
         api::create_key(
             &client,
+            MOUNT,
             KEY_ID,
             KeyCurve::Secp256k1,
             HashMap::from([(String::from("owner"), String::from("Alice"))]),
         )
         .await?
     } else {
-        api::read_key(&client, KEY_ID).await?
+        api::read_key(&client, MOUNT, KEY_ID).await?
     };
 
     println!("key: {key:?}");
-    println!("keys: {:?}", api::list_keys(&client).await?.keys);
-    println!("key: {:?}", api::read_key(&client, KEY_ID).await?);
+    println!("keys: {:?}", api::list_keys(&client, MOUNT).await?.keys);
+    println!("key: {:?}", api::read_key(&client, MOUNT, KEY_ID).await?);
 
     let hash = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
     println!(
         "hash signature: {:?}",
-        api::sign_hash(&client, KEY_ID, hash).await?
+        api::sign_hash(&client, MOUNT, KEY_ID, hash).await?
     );
     println!(
         "batch signatures: {:?}",
-        api::sign_batch(&client, KEY_ID, vec![hash.into(), hash.replace('a', "b")]).await?
+        api::sign_batch(
+            &client,
+            MOUNT,
+            KEY_ID,
+            vec![hash.into(), hash.replace('a', "b")],
+        )
+        .await?
     );
     println!(
         "message signature: {:?}",
-        api::sign_message(&client, KEY_ID, "68656c6c6f", HashFunction::Keccak256).await?
+        api::sign_message(
+            &client,
+            MOUNT,
+            KEY_ID,
+            "68656c6c6f",
+            HashFunction::Keccak256,
+        )
+        .await?
     );
 
     println!(
         "Ethereum transaction signature: {:?}",
         api::sign_ethereum_transaction(
             &client,
+            MOUNT,
             KEY_ID,
             EthereumTransaction {
                 transaction_type: "0x2".into(),
@@ -79,6 +95,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "EIP-712 signature: {:?}",
         api::sign_typed_data(
             &client,
+            MOUNT,
             KEY_ID,
             TypedData {
                 types: HashMap::from([
@@ -109,6 +126,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "ERC-4337 signature: {:?}",
         api::sign_user_operation(
             &client,
+            MOUNT,
             KEY_ID,
             UserOperation {
                 sender: "0x0000000000000000000000000000000000000001".into(),
@@ -132,7 +150,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     if created_key {
-        api::delete_key(&client, KEY_ID).await?;
+        api::delete_key(&client, MOUNT, KEY_ID).await?;
         println!("deleted key: {KEY_ID}");
     } else {
         println!("kept existing key: {KEY_ID}");
